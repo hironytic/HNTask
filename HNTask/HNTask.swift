@@ -24,12 +24,12 @@
 
 import Foundation
 
-class HNTask<TResult> {
+class HNTask {
 
     struct Privates {
         let lock = NSObject()
         var completed: Bool = false
-        var result: TResult?
+        var result: Any?
         var error: Any?
         var following: (() -> Void)[] = []
         
@@ -41,9 +41,9 @@ class HNTask<TResult> {
         
     }
 
-    var result: TResult? {
+    var result: Any? {
         get {
-            var value: TResult?
+            var value: Any?
             locked {
                 value = self.privates.result
             }
@@ -75,7 +75,7 @@ class HNTask<TResult> {
         objc_sync_exit(privates.lock)
     }
     
-    func complete(#result: TResult?, error: Any?) {
+    func complete(#result: Any?, error: Any?) {
         locked {
             if !self.privates.completed {
                 self.privates.completed = true
@@ -97,20 +97,20 @@ class HNTask<TResult> {
         callback()
     }
     
-    func continueWith<TCBResult>(callback: (context: HNTaskContext<TResult>) -> TCBResult?) -> HNTask<TCBResult> {
-        let task = HNTask<TCBResult>()
+    func continueWith(callback: (context: HNTaskContext) -> Any?) -> HNTask {
+        let task = HNTask()
         
         let executeCallback: () -> Void = {
             self.execute {
-                let result = callback(context: HNTaskContext<TResult>(result: self.result))
+                let result = callback(context: HNTaskContext(result: self.result))
                 if let resultTask = result as? HNTask {
-                    resultTask.continueWith { (context: HNTaskContext<TResult>) -> Void? in
+                    resultTask.continueWith { (context: HNTaskContext) -> Any? in
                         // TODO: cancel?
-                        task.complete(result: context.result as? TCBResult, error: context.error)
+                        task.complete(result: context.result, error: context.error)
                         return nil
                     }
                 } else {
-                    task.complete(result: result as? TCBResult, error: nil)
+                    task.complete(result: result, error: nil)
                 }
             }
         }
@@ -131,11 +131,11 @@ class HNTask<TResult> {
     
 }
 
-class HNTaskContext<TResult> {
-    let result: TResult?
+class HNTaskContext {
+    let result: Any?
     var error: Any?
     
-    init(result: TResult?) {
+    init(result: Any?) {
         self.result = result
     }
 }
