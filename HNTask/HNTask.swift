@@ -102,7 +102,8 @@ class HNTask {
         
         let executeCallback: () -> Void = {
             self.execute {
-                let result = callback(context: HNTaskContext(result: self.result))
+                let context = HNTaskContext(result: self.result, error: self.error)
+                let result = callback(context: context)
                 if let resultTask = result as? HNTask {
                     resultTask.continueWith { (context: HNTaskContext) -> Any? in
                         // TODO: cancel?
@@ -110,7 +111,7 @@ class HNTask {
                         return nil
                     }
                 } else {
-                    task.complete(result: result, error: nil)
+                    task.complete(result: result, error: context.error)
                 }
             }
         }
@@ -135,9 +136,35 @@ class HNTaskContext {
     let result: Any?
     var error: Any?
     
-    init(result: Any?) {
+    init(result: Any?, error: Any?) {
         self.result = result
+        self.error = error
     }
 }
 
+// suppose it is used in this way
+
+//func foo() {
+//    let task = HNTask()
+//    task.complete(result: nil, error: nil)
+//    task.continueWith { context in
+//        return 10
+//    }.continueWith { context in
+//        if let num = context.result as? Int {
+//            return "moji - \(num)"
+//        } else {
+//            context.error = NSError(domain: "FooDomain", code: 1, userInfo: nil)
+//            return nil
+//        }
+//    }.continueWith { context in
+//        if let error = context.error as? NSError {
+//            println("\(error)")
+//            return nil
+//        }
+//        
+//        let result: String? = context.result as? String
+//        println(result)
+//        return nil
+//    }
+//}
 
