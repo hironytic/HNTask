@@ -24,74 +24,108 @@
 
 import Foundation
 
-class HNTask {
+protocol HNTaskContext {
+    var result: Any? { get }
+    var error: Any? { get }
+    
+    func isError() -> Bool
+}
 
-    struct Privates {
-        let lock = NSObject()
-        var completed: Bool = false
-        var result: Any?
-        var error: Any?
-        var following: (() -> Void)[] = []
-        
-        init() {}
+class HNTask : HNTaskContext {
+
+    struct ErrorContainer {
+        let value: Any?
+        init(value: Any?) {
+            self.value = value
+        }
     }
-    var privates = Privates()
+    
+    let _lock = NSObject()
+    var _completed: Bool = false
+    var _result: Any? = nil
+    var _errorContainer: ErrorContainer? = nil
+    var _continuations: (() -> Void)[] = []
 
+    /// create an uncompleted task
     init() {
         
     }
 
+    // @private
+    func doInLock<TResult>(callback: () -> TResult) -> TResult {
+        objc_sync_enter(_lock)
+        let result = callback()
+        objc_sync_exit(_lock)
+        return result
+    }
+    
     var result: Any? {
         get {
-            var value: Any?
-            locked {
-                value = self.privates.result
+            return doInLock { () -> Any? in
+                return self._result
             }
-            return value
+        }
+    }
+    
+    var errorContainer: ErrorContainer? {
+        get {
+            return doInLock { () -> ErrorContainer? in
+                return self._errorContainer
+            }
         }
     }
     
     var error: Any? {
         get {
-            var value: Any?
-            locked {
-                value = self.privates.error
+            return doInLock { () -> Any? in
+                if let errorContainer = self._errorContainer {
+                    return errorContainer.value
+                } else {
+                    return nil
+                }
             }
-            return value
         }
     }
     
+    func isError() -> Bool {
+        return doInLock { () -> Bool in
+            return self._errorContainer ? true : false
+        }
+    }
+
     func isCompleted() -> Bool {
-        var value: Bool = false
-        locked {
-            value = self.privates.completed
-        }
-        return value
+        return doInLock({ () -> Bool in
+            return self._completed
+        })
+    }
+
+    func resolve(result: Any?) {
+        complete(result: result, errorContainer: nil)
     }
     
-    func locked(callback: () -> Void) {
-        objc_sync_enter(privates.lock)
-        callback()
-        objc_sync_exit(privates.lock)
+    func reject(error: Any?) {
+        complete(result: nil, errorContainer: ErrorContainer(value: error))
     }
     
-    func complete(#result: Any?, error: Any?) {
-        locked {
-            if !self.privates.completed {
-                self.privates.completed = true
-                self.privates.result = result
-                self.privates.error = error
+    // @private
+    func complete(#result: Any?, errorContainer: ErrorContainer?) {
+        doInLock { () -> Void in
+            if !self._completed {
+                self._completed = true
+                self._result = result
+                self._errorContainer = errorContainer
             }
             
             // TODO: notify
             
-            for callback in self.privates.following {
+            for callback in self._continuations {
                 callback()
             }
-            self.privates.following.removeAll(keepCapacity: false)
+            self._continuations.removeAll(keepCapacity: false)
         }
     }
     
+    // @private
     func execute(callback: () -> Void) {
         // FIXME:
         callback()
@@ -100,27 +134,27 @@ class HNTask {
     func continueWith(callback: (context: HNTaskContext) -> Any?) -> HNTask {
         let task = HNTask()
         
-        let executeCallback: () -> Void = {
+        let executeCallback = {
             self.execute {
-                let context = HNTaskContext(result: self.result, error: self.error)
-                let result = callback(context: context)
+                let result = callback(context: self)
                 if let resultTask = result as? HNTask {
-                    resultTask.continueWith { (context: HNTaskContext) -> Any? in
+                    resultTask.continueWith { context in
                         // TODO: cancel?
-                        task.complete(result: context.result, error: context.error)
+                        let prevTask = context as HNTask
+                        task.complete(result: prevTask.result, errorContainer: prevTask.errorContainer)
                         return nil
                     }
                 } else {
-                    task.complete(result: result, error: context.error)
+                    task.complete(result: result, errorContainer: self.errorContainer)
                 }
             }
         }
 
         var wasCompleted = false
-        locked {
+        doInLock { () -> Void in
             wasCompleted = self.isCompleted()
             if !wasCompleted {
-                self.privates.following.append(executeCallback)
+                self._continuations.append(executeCallback)
             }
         }
         if wasCompleted {
@@ -132,33 +166,24 @@ class HNTask {
     
 }
 
-class HNTaskContext {
-    let result: Any?
-    var error: Any?
-    
-    init(result: Any?, error: Any?) {
-        self.result = result
-        self.error = error
-    }
-}
-
 // suppose it is used in this way
 
 //func foo() {
 //    let task = HNTask()
-//    task.complete(result: nil, error: nil)
+//    task.resolve(nil)
 //    task.continueWith { context in
 //        return 10
 //    }.continueWith { context in
 //        if let num = context.result as? Int {
 //            return "moji - \(num)"
 //        } else {
-//            context.error = NSError(domain: "FooDomain", code: 1, userInfo: nil)
-//            return nil
+//            let errorTask = HNTask()
+//            errorTask.reject(NSError(domain: "FooDomain", code: 1, userInfo: nil))
+//            return errorTask
 //        }
 //    }.continueWith { context in
-//        if let error = context.error as? NSError {
-//            println("\(error)")
+//        if context.isError() {
+//            println("\(context.error)")
 //            return nil
 //        }
 //        
@@ -167,4 +192,3 @@ class HNTaskContext {
 //        return nil
 //    }
 //}
-
