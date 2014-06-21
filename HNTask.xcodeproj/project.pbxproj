@@ -11,6 +11,7 @@
 		505DABEF195272F00051FC79 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 505DABEE195272F00051FC79 /* Images.xcassets */; };
 		505DABFB195272F00051FC79 /* HNTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DABFA195272F00051FC79 /* HNTaskTests.swift */; };
 		505DAC051952D9EE0051FC79 /* HNTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DAC041952D9EE0051FC79 /* HNTask.swift */; };
+		509654F9195587C900136C43 /* HNTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DAC041952D9EE0051FC79 /* HNTask.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -212,6 +213,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				509654F9195587C900136C43 /* HNTask.swift in Sources */,
 				505DABFB195272F00051FC79 /* HNTaskTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -381,6 +383,7 @@
 				505DAC00195272F00051FC79 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		505DAC01195272F00051FC79 /* Build configuration list for PBXNativeTarget "HNTaskTests" */ = {
 			isa = XCConfigurationList;
@@ -389,6 +392,7 @@
 				505DAC03195272F00051FC79 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

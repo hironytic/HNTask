@@ -26,6 +26,10 @@ import XCTest
 
 class HNTaskTests: XCTestCase {
     
+    struct MyError: HNTaskError {
+        let message: String
+    }
+    
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -35,17 +39,88 @@ class HNTaskTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    
-    func testExample() {
-        // This is an example of a functional test case.
-        XCTAssert(true, "Pass")
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock() {
-            // Put the code you want to measure the time of here.
+
+    func testContinuationShouldRun() {
+        var continued = false
+        let task = HNTask()
+        task.resolve(nil)
+        task.continueWith { context in
+            continued = true
         }
+        task.waitUntilCompleted()
+        XCTAssertTrue(continued, "continuation closure should run.")
+    }
+
+    func testContinuationShouldRunWhenRejected() {
+        var continued = false
+        let task = HNTask()
+        task.reject(MyError(message: "error"))
+        task.continueWith { context in
+            continued = true
+        }
+        task.waitUntilCompleted()
+        XCTAssertTrue(continued, "continuation closure should run.")
     }
     
+    func testResultShouldBePassed() {
+        let task = HNTask()
+        task.resolve(10)
+        task.continueWith { context in
+            if let value = context.result as? Int {
+                XCTAssertEqual(value, 10, "previous result should be passed.")
+            } else {
+                XCTFail("previous result shoule be Int.")
+            }
+            return nil
+        }
+        
+        task.waitUntilCompleted()
+    }
+    
+    func testReturnValueShouldBeResult() {
+        let task = HNTask()
+        task.resolve(nil)
+        task.continueWith { context in
+            return "result"
+        }.continueWith { context in
+            if let value = context.result as? String {
+                XCTAssertEqual(value, "result", "previous return value should be result.")
+            } else {
+                XCTFail("previous result shoule be String.")
+            }
+            return nil
+        }
+        
+        task.waitUntilCompleted()
+    }
+    
+    func testRejectShouldCauseError() {
+        let task = HNTask()
+        task.reject(MyError(message: "error"))
+        task.continueWith { context in
+            XCTAssertTrue(context.isError(), "error should be occured.")
+            return nil
+        }
+        
+        task.waitUntilCompleted()
+    }
+    
+    func testErrorValueShouldBePassed() {
+        let task = HNTask()
+        task.reject(MyError(message: "error"))
+        task.continueWith { context in
+            if let error = context.error {
+                if let myError = error as? MyError {
+                    XCTAssertEqual(myError.message, "error", "error value shoule be passed.")
+                } else {
+                    XCTFail("error value shoule be type of MyError.")
+                }
+            } else {
+                XCTFail("error value shoule be exist.")
+            }
+            return nil
+        }
+        
+        task.waitUntilCompleted()
+    }
 }
