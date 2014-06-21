@@ -38,6 +38,7 @@ class HNTask : HNTaskContext {
 
     let _lock = NSObject()
     var _completed: Bool = false
+    let _completeCondition: NSCondition = NSCondition()
     var _result: Any? = nil
     var _error: HNTaskError? = nil
     var _continuations: (() -> Void)[] = []
@@ -100,8 +101,12 @@ class HNTask : HNTaskContext {
                 self._error = error
             }
             
-            // TODO: notify
-            
+            // wake up all waiting thread by waitUntilCompleted()
+            self._completeCondition.lock()
+            self._completeCondition.broadcast()
+            self._completeCondition.unlock()
+
+            // execute all coninuations
             for callback in self._continuations {
                 callback()
             }
@@ -145,6 +150,20 @@ class HNTask : HNTaskContext {
         }
         
         return task
+    }
+    
+    func waitUntilCompleted() {
+        let doWait = doInLock { () -> Bool in
+            if (self.isCompleted()) {
+                return false
+            }
+            self._completeCondition.lock()
+            return true
+        }
+        if doWait {
+            self._completeCondition.wait()
+            self._completeCondition.unlock()
+        }
     }
     
 }
