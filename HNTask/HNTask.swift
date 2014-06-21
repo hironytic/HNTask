@@ -26,24 +26,20 @@ import Foundation
 
 protocol HNTaskContext {
     var result: Any? { get }
-    var error: Any? { get }
+    var error: HNTaskError? { get }
     
     func isError() -> Bool
 }
 
+protocol HNTaskError {
+}
+
 class HNTask : HNTaskContext {
 
-    struct ErrorContainer {
-        let value: Any?
-        init(value: Any?) {
-            self.value = value
-        }
-    }
-    
     let _lock = NSObject()
     var _completed: Bool = false
     var _result: Any? = nil
-    var _errorContainer: ErrorContainer? = nil
+    var _error: HNTaskError? = nil
     var _continuations: (() -> Void)[] = []
 
     /// create an uncompleted task
@@ -67,29 +63,17 @@ class HNTask : HNTaskContext {
         }
     }
     
-    var errorContainer: ErrorContainer? {
+    var error: HNTaskError? {
         get {
-            return doInLock { () -> ErrorContainer? in
-                return self._errorContainer
-            }
-        }
-    }
-    
-    var error: Any? {
-        get {
-            return doInLock { () -> Any? in
-                if let errorContainer = self._errorContainer {
-                    return errorContainer.value
-                } else {
-                    return nil
-                }
+            return doInLock { () -> HNTaskError? in
+                return self._error
             }
         }
     }
     
     func isError() -> Bool {
         return doInLock { () -> Bool in
-            return self._errorContainer ? true : false
+            return self._error ? true : false
         }
     }
 
@@ -100,20 +84,20 @@ class HNTask : HNTaskContext {
     }
 
     func resolve(result: Any?) {
-        complete(result: result, errorContainer: nil)
+        complete(result: result, error: nil)
     }
     
-    func reject(error: Any?) {
-        complete(result: nil, errorContainer: ErrorContainer(value: error))
+    func reject(error: HNTaskError?) {
+        complete(result: nil, error: error)
     }
     
     // @private
-    func complete(#result: Any?, errorContainer: ErrorContainer?) {
+    func complete(#result: Any?, error: HNTaskError?) {
         doInLock { () -> Void in
             if !self._completed {
                 self._completed = true
                 self._result = result
-                self._errorContainer = errorContainer
+                self._error = error
             }
             
             // TODO: notify
@@ -140,12 +124,11 @@ class HNTask : HNTaskContext {
                 if let resultTask = result as? HNTask {
                     resultTask.continueWith { context in
                         // TODO: cancel?
-                        let prevTask = context as HNTask
-                        task.complete(result: prevTask.result, errorContainer: prevTask.errorContainer)
+                        task.complete(result: context.result, error: context.error)
                         return nil
                     }
                 } else {
-                    task.complete(result: result, errorContainer: self.errorContainer)
+                    task.complete(result: result, error: self.error)
                 }
             }
         }
@@ -168,6 +151,8 @@ class HNTask : HNTaskContext {
 
 // suppose it is used in this way
 
+//extension NSError: HNTaskError { }
+//
 //func foo() {
 //    let task = HNTask()
 //    task.resolve(nil)
