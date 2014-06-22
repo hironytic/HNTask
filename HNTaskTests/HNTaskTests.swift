@@ -138,5 +138,98 @@ class HNTaskTests: XCTestCase {
     
         lastTask.waitUntilCompleted()
     }
+
+    func testResolvedTask() {
+        let task = HNTask.resolvedTask(20)
+        XCTAssertTrue(task.isCompleted(), "task should be completed.")
+        task.continueWith { context in
+            if let value = context.result as? Int {
+                XCTAssertEqual(value, 20, "resolved value should be passed.")
+            } else {
+                XCTFail("resolved value shoule be Int.")
+            }
+            return nil
+        }.waitUntilCompleted()
+    }
+    
+    func testRejectedTask() {
+        let task = HNTask.rejectedTask(MyError(message: "rejected"))
+        XCTAssertTrue(task.isCompleted(), "task should be completed.")
+        task.continueWith { context in
+            XCTAssertTrue(context.isError(), "task shoule be in error state.")
+            if let error = context.error {
+                if let myError = error as? MyError {
+                    XCTAssertEqual(myError.message, "rejected", "error message shoule be 'rejected'")
+                } else {
+                    XCTFail("error value shoule be MyError.")
+                }
+            } else {
+                XCTFail("error value shoule be exist.")
+            }
+            return nil
+        }.waitUntilCompleted()
+        
+    }
+    
+    
+    func testThenShouldRunWhenSucceeded() {
+        var ran = false
+        HNTask.resolvedTask(30).then { value in
+            ran = true
+            if let intValue = value as? Int {
+                XCTAssertEqual(intValue, 30, "previous value should be passed.")
+            } else {
+                XCTFail("previous value shoule be Int.")
+            }
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertTrue(ran, "then closure should run.")
+    }
+    
+    func testThenShouleNotRunWhenError() {
+        var ran = false
+        HNTask.rejectedTask(MyError(message: "myError")).then { value in
+            ran = true
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertFalse(ran, "then closure should not run.")
+    }
+    
+    func testCatchShouleNotRunWhenSucceeded() {
+        var ran = false
+        HNTask.resolvedTask(30).catch { error in
+            ran = true
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertFalse(ran, "catch closure should not run.")
+    }
+
+    func testCatchShouleRunWhenError() {
+        var ran = false
+        HNTask.rejectedTask(MyError(message: "myError")).catch { error in
+            ran = true
+            if let myError = error as? MyError {
+                XCTAssertEqual(myError.message, "myError", "error message shoule be 'myError'")
+            } else {
+                XCTFail("error value shoule be MyError.")
+            }
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertTrue(ran, "then closure should run.")
+    }
+
+    func testCatchShouleClearError() {
+        HNTask.rejectedTask(MyError(message: "myError")).catch { error in
+            return 100
+        }.continueWith { context in
+            XCTAssertFalse(context.isError(), "error shoule be cleared")
+            if let intValue = context.result as? Int {
+                XCTAssertEqual(intValue, 100, "previous value should be passed.")
+            } else {
+                XCTFail("previous value shoule be Int.")
+            }
+            return nil
+        }.waitUntilCompleted()
+    }
     
 }

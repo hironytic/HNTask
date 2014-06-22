@@ -36,6 +36,10 @@ protocol HNTaskError {
 
 class HNTask : HNTaskContext {
 
+    typealias TaskCallback = (HNTaskContext) -> Any?
+    typealias FulfilledCallback = (Any?) -> Any?
+    typealias RejectedCallback = (HNTaskError) -> Any?
+    
     let _lock = NSObject()
     var _completed: Bool = false
     let _completeCondition: NSCondition = NSCondition()
@@ -43,11 +47,25 @@ class HNTask : HNTaskContext {
     var _error: HNTaskError? = nil
     var _continuations: (() -> Void)[] = []
 
-    /// create an uncompleted task
+    /// creates an uncompleted task
     init() {
         
     }
 
+    /// creates an resolved task
+    class func resolvedTask(result: Any?) -> HNTask {
+        let task = HNTask()
+        task.resolve(result)
+        return task
+    }
+
+    /// creates an rejected task
+    class func rejectedTask(error: HNTaskError) -> HNTask {
+        let task = HNTask()
+        task.reject(error)
+        return task
+    }
+    
     // @private
     func doInLock<TResult>(callback: () -> TResult) -> TResult {
         objc_sync_enter(_lock)
@@ -88,7 +106,7 @@ class HNTask : HNTaskContext {
         complete(result: result, error: nil)
     }
     
-    func reject(error: HNTaskError?) {
+    func reject(error: HNTaskError) {
         complete(result: nil, error: error)
     }
     
@@ -115,11 +133,11 @@ class HNTask : HNTaskContext {
         objc_sync_exit(_lock)
     }
     
-    func continueWith(callback: (context: HNTaskContext) -> Any?) -> HNTask {
+    func continueWith(callback: TaskCallback) -> HNTask {
         let task = HNTask()
         
         let executeCallback: () -> Void = {
-            let result = callback(context: self)
+            let result = callback(self)
             if let resultTask = result as? HNTask {
                 resultTask.continueWith { context in
                     // TODO: cancel?
@@ -155,6 +173,40 @@ class HNTask : HNTaskContext {
         }
     }
     
+    func then(onFulfilled: FulfilledCallback) -> HNTask {
+        return continueWith { context in
+            if context.isError() {
+                return context.result
+            } else {
+                return onFulfilled(context.result)
+            }
+        }
+    }
+    
+    func then(#onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
+        return continueWith { context in
+            if let error = context.error {
+                return HNTask.resolvedTask(nil).continueWith { context in
+                    return onRejected(error)
+                }
+            } else {
+                return onFulfilled(context.result)
+            }
+        }
+    }
+    
+    func catch(onRejected: (HNTaskError) -> Any?) -> HNTask {
+        return continueWith { context in
+            if let error = context.error {
+                return HNTask.resolvedTask(nil).continueWith { context in
+                    return onRejected(error)
+                }
+            } else {
+                return context.result
+            }
+        }
+    }
+    
     func waitUntilCompleted() {
         let doWait = doInLock { () -> Bool in
             if (self.isCompleted()) {
@@ -168,34 +220,4 @@ class HNTask : HNTaskContext {
             self._completeCondition.unlock()
         }
     }
-    
 }
-
-// suppose it is used in this way
-
-//extension NSError: HNTaskError { }
-//
-//func foo() {
-//    let task = HNTask()
-//    task.resolve(nil)
-//    task.continueWith { context in
-//        return 10
-//    }.continueWith { context in
-//        if let num = context.result as? Int {
-//            return "moji - \(num)"
-//        } else {
-//            let errorTask = HNTask()
-//            errorTask.reject(NSError(domain: "FooDomain", code: 1, userInfo: nil))
-//            return errorTask
-//        }
-//    }.continueWith { context in
-//        if context.isError() {
-//            println("\(context.error)")
-//            return nil
-//        }
-//        
-//        let result: String? = context.result as? String
-//        println(result)
-//        return nil
-//    }
-//}
