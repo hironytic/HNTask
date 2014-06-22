@@ -113,4 +113,30 @@ class HNTaskTests: XCTestCase {
             return nil
         }.waitUntilCompleted()
     }
+    
+    func testThreadShouldSwitchedByExecutor() {
+        let myQueue = dispatch_queue_create("com.hironytic.hntasktests", nil)
+        class MyExecutor: HNTaskExecutor {
+            let queue: dispatch_queue_t
+            init(queue: dispatch_queue_t) {
+                self.queue = queue
+            }
+            func execute(callback: () -> Void) {
+                dispatch_async(queue) {
+                    callback()
+                }
+            }
+        }
+        
+        let testThread = NSThread.currentThread()
+        
+        let task = HNTask()
+        task.resolve(nil)
+        let lastTask = task.switchExecutor(MyExecutor(queue: myQueue)).continueWith { context in
+            XCTAssertNotEqualObjects(testThread, NSThread.currentThread(), "thread shoule be switched")
+        }
+    
+        lastTask.waitUntilCompleted()
+    }
+    
 }

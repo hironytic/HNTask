@@ -94,47 +94,40 @@ class HNTask : HNTaskContext {
     
     // @private
     func complete(#result: Any?, error: HNTaskError?) {
-        doInLock { () -> Void in
-            if !self._completed {
-                self._completed = true
-                self._result = result
-                self._error = error
-            }
-            
-            // wake up all waiting thread by waitUntilCompleted()
-            self._completeCondition.lock()
-            self._completeCondition.broadcast()
-            self._completeCondition.unlock()
-
-            // execute all coninuations
-            for callback in self._continuations {
-                callback()
-            }
-            self._continuations.removeAll(keepCapacity: false)
+        // doInLock is not used here for reduction of the call stack size.
+        objc_sync_enter(_lock)
+        if !self._completed {
+            self._completed = true
+            self._result = result
+            self._error = error
         }
-    }
-    
-    // @private
-    func execute(callback: () -> Void) {
-        // FIXME:
-        callback()
+        
+        // wake up all waiting thread by waitUntilCompleted()
+        self._completeCondition.lock()
+        self._completeCondition.broadcast()
+        self._completeCondition.unlock()
+
+        // execute all coninuations
+        for callback in self._continuations {
+            callback()
+        }
+        self._continuations.removeAll(keepCapacity: false)
+        objc_sync_exit(_lock)
     }
     
     func continueWith(callback: (context: HNTaskContext) -> Any?) -> HNTask {
         let task = HNTask()
         
-        let executeCallback = {
-            self.execute {
-                let result = callback(context: self)
-                if let resultTask = result as? HNTask {
-                    resultTask.continueWith { context in
-                        // TODO: cancel?
-                        task.complete(result: context.result, error: context.error)
-                        return nil
-                    }
-                } else {
-                    task.complete(result: result, error: self.error)
+        let executeCallback: () -> Void = {
+            let result = callback(context: self)
+            if let resultTask = result as? HNTask {
+                resultTask.continueWith { context in
+                    // TODO: cancel?
+                    task.complete(result: context.result, error: context.error)
+                    return nil
                 }
+            } else {
+                task.complete(result: result, error: self.error)
             }
         }
 
@@ -150,6 +143,16 @@ class HNTask : HNTaskContext {
         }
         
         return task
+    }
+    
+    func switchExecutor(executor: HNTaskExecutor) -> HNTask {
+        return continueWith { context in
+            let task = HNTask()
+            executor.execute {
+                task.complete(result: context.result, error: context.error)
+            }
+            return task
+        }
     }
     
     func waitUntilCompleted() {

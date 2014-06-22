@@ -12,6 +12,8 @@
 		505DABFB195272F00051FC79 /* HNTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DABFA195272F00051FC79 /* HNTaskTests.swift */; };
 		505DAC051952D9EE0051FC79 /* HNTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DAC041952D9EE0051FC79 /* HNTask.swift */; };
 		509654F9195587C900136C43 /* HNTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DAC041952D9EE0051FC79 /* HNTask.swift */; };
+		50A8CE8B19570150007F984F /* HNTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A8CE8A19570150007F984F /* HNTaskExecutor.swift */; };
+		50A8CE8C195708E0007F984F /* HNTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A8CE8A19570150007F984F /* HNTaskExecutor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +35,7 @@
 		505DABF9195272F00051FC79 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		505DABFA195272F00051FC79 /* HNTaskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HNTaskTests.swift; sourceTree = "<group>"; };
 		505DAC041952D9EE0051FC79 /* HNTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNTask.swift; sourceTree = "<group>"; };
+		50A8CE8A19570150007F984F /* HNTaskExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNTaskExecutor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				505DAC041952D9EE0051FC79 /* HNTask.swift */,
+				50A8CE8A19570150007F984F /* HNTaskExecutor.swift */,
 				505DABEC195272F00051FC79 /* AppDelegate.swift */,
 				505DABEE195272F00051FC79 /* Images.xcassets */,
 				505DABEA195272F00051FC79 /* Supporting Files */,
@@ -204,6 +208,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50A8CE8B19570150007F984F /* HNTaskExecutor.swift in Sources */,
 				505DAC051952D9EE0051FC79 /* HNTask.swift in Sources */,
 				505DABED195272F00051FC79 /* AppDelegate.swift in Sources */,
 			);
@@ -213,6 +218,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50A8CE8C195708E0007F984F /* HNTaskExecutor.swift in Sources */,
 				509654F9195587C900136C43 /* HNTask.swift in Sources */,
 				505DABFB195272F00051FC79 /* HNTaskTests.swift in Sources */,
 			);
