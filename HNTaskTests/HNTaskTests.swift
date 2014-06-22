@@ -46,8 +46,7 @@ class HNTaskTests: XCTestCase {
         task.resolve(nil)
         task.continueWith { context in
             continued = true
-        }
-        task.waitUntilCompleted()
+        }.waitUntilCompleted()
         XCTAssertTrue(continued, "continuation closure should run.")
     }
 
@@ -57,8 +56,7 @@ class HNTaskTests: XCTestCase {
         task.reject(MyError(message: "error"))
         task.continueWith { context in
             continued = true
-        }
-        task.waitUntilCompleted()
+        }.waitUntilCompleted()
         XCTAssertTrue(continued, "continuation closure should run.")
     }
     
@@ -72,9 +70,7 @@ class HNTaskTests: XCTestCase {
                 XCTFail("previous result shoule be Int.")
             }
             return nil
-        }
-        
-        task.waitUntilCompleted()
+        }.waitUntilCompleted()
     }
     
     func testReturnValueShouldBeResult() {
@@ -89,9 +85,7 @@ class HNTaskTests: XCTestCase {
                 XCTFail("previous result shoule be String.")
             }
             return nil
-        }
-        
-        task.waitUntilCompleted()
+        }.waitUntilCompleted()
     }
     
     func testRejectShouldCauseError() {
@@ -100,9 +94,7 @@ class HNTaskTests: XCTestCase {
         task.continueWith { context in
             XCTAssertTrue(context.isError(), "error should be occured.")
             return nil
-        }
-        
-        task.waitUntilCompleted()
+        }.waitUntilCompleted()
     }
     
     func testErrorValueShouldBePassed() {
@@ -119,8 +111,6 @@ class HNTaskTests: XCTestCase {
                 XCTFail("error value shoule be exist.")
             }
             return nil
-        }
-        
-        task.waitUntilCompleted()
+        }.waitUntilCompleted()
     }
 }
