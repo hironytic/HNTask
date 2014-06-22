@@ -28,3 +28,15 @@ protocol HNTaskExecutor {
     func execute(callback: () -> Void)
 }
 
+class HNDefaultTaskExecutor: HNTaskExecutor {
+    class var sharedExecutor: HNDefaultTaskExecutor {
+        struct Singleton {
+            static let instance = HNDefaultTaskExecutor()
+        }
+        return Singleton.instance
+    }
+    
+    func execute(callback: () -> Void) {
+        callback()
+    }
+}

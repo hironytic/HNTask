@@ -132,11 +132,9 @@ class HNTaskTests: XCTestCase {
         
         let task = HNTask()
         task.resolve(nil)
-        let lastTask = task.switchExecutor(MyExecutor(queue: myQueue)).continueWith { context in
+        task.continueWith(MyExecutor(queue: myQueue)) { context in
             XCTAssertNotEqualObjects(testThread, NSThread.currentThread(), "thread shoule be switched")
-        }
-    
-        lastTask.waitUntilCompleted()
+        }.waitUntilCompleted()
     }
 
     func testResolvedTask() {

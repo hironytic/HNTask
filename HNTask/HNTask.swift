@@ -133,19 +133,20 @@ class HNTask : HNTaskContext {
         objc_sync_exit(_lock)
     }
     
-    func continueWith(callback: TaskCallback) -> HNTask {
+    func continueWith(executor: HNTaskExecutor, callback: TaskCallback) -> HNTask {
         let task = HNTask()
         
         let executeCallback: () -> Void = {
-            let result = callback(self)
-            if let resultTask = result as? HNTask {
-                resultTask.continueWith { context in
-                    // TODO: cancel?
-                    task.complete(result: context.result, error: context.error)
-                    return nil
+            executor.execute {
+                let result = callback(self)
+                if let resultTask = result as? HNTask {
+                    resultTask.continueWith { context in
+                        task.complete(result: context.result, error: context.error)
+                        return nil
+                    }
+                } else {
+                    task.complete(result: result, error: self.error)
                 }
-            } else {
-                task.complete(result: result, error: self.error)
             }
         }
 
@@ -163,20 +164,12 @@ class HNTask : HNTaskContext {
         return task
     }
     
-    // FIXME: Bug
-    // when the executor executes too fast, returned task's continuation is called in original thread!
-    func switchExecutor(executor: HNTaskExecutor) -> HNTask {
-        return continueWith { context in
-            let task = HNTask()
-            executor.execute {
-                task.complete(result: context.result, error: context.error)
-            }
-            return task
-        }
+    func continueWith(callback: TaskCallback) -> HNTask {
+        return continueWith(HNDefaultTaskExecutor.sharedExecutor, callback: callback)
     }
     
-    func then(onFulfilled: FulfilledCallback) -> HNTask {
-        return continueWith { context in
+    func then(executor: HNTaskExecutor, onFulfilled: FulfilledCallback) -> HNTask {
+        return continueWith(executor) { context in
             if context.isError() {
                 return context.result
             } else {
@@ -185,8 +178,12 @@ class HNTask : HNTaskContext {
         }
     }
     
-    func then(#onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
-        return continueWith { context in
+    func then(onFulfilled: FulfilledCallback) -> HNTask {
+        return then(HNDefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled)
+    }
+    
+    func then(executor: HNTaskExecutor, onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
+        return continueWith(executor) { context in
             if let error = context.error {
                 return HNTask.resolvedTask(nil).continueWith { context in
                     return onRejected(error)
@@ -196,9 +193,13 @@ class HNTask : HNTaskContext {
             }
         }
     }
+
+    func then(#onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
+        return then(HNDefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled, onRejected: onRejected)
+    }
     
-    func catch(onRejected: (HNTaskError) -> Any?) -> HNTask {
-        return continueWith { context in
+    func catch(executor: HNTaskExecutor, onRejected: (HNTaskError) -> Any?) -> HNTask {
+        return continueWith(executor) { context in
             if let error = context.error {
                 return HNTask.resolvedTask(nil).continueWith { context in
                     return onRejected(error)
@@ -207,6 +208,10 @@ class HNTask : HNTaskContext {
                 return context.result
             }
         }
+    }
+
+    func catch(onRejected: (HNTaskError) -> Any?) -> HNTask {
+        return catch(HNDefaultTaskExecutor.sharedExecutor, onRejected: onRejected)
     }
     
     func waitUntilCompleted() {
