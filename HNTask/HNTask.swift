@@ -163,6 +163,8 @@ class HNTask : HNTaskContext {
         return task
     }
     
+    // FIXME: Bug
+    // when the executor executes too fast, returned task's continuation is called in original thread!
     func switchExecutor(executor: HNTaskExecutor) -> HNTask {
         return continueWith { context in
             let task = HNTask()
