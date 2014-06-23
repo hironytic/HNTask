@@ -230,4 +230,40 @@ class HNTaskTests: XCTestCase {
         }.waitUntilCompleted()
     }
     
+    func makeStringAsync(str: String) -> HNTask {
+        let task = HNTask.resolvedTask(str + "s")
+        return task
+    }
+    
+    func testExecutionOrder() {
+        HNTask.resolvedTask("").then { value in
+            if let str = value as? String {
+                return str + "a"
+            } else {
+                return HNTask.rejectedTask(MyError(message: "error"))
+            }
+        }.then { value in
+            if var str = value as? String {
+                str += "b"
+                return self.makeStringAsync(str)
+            } else {
+                return HNTask.rejectedTask(MyError(message: "error"))
+            }
+        }.then { value in
+            if let str = value as? String {
+                return str + "c"
+            } else {
+                return HNTask.rejectedTask(MyError(message: "error"))
+            }
+        }.continueWith { context in
+            XCTAssertFalse(context.isError(), "error should not occured")
+            if let str = context.result as? String {
+                XCTAssertEqual(str, "absc", "check order")
+            } else {
+                XCTFail("result value should be String")
+            }
+            return nil
+        }
+    }
+    
 }
