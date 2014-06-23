@@ -339,4 +339,47 @@ class HNTaskTests: XCTestCase {
         XCTAssertTrue(called, "catch should be called.")
     }
     
+    func testThenShouldBeCalledAfterOneTaskInRaceIsCompleted() {
+        var called = false
+        let task1 = delayAsync(100, callback:{ })
+        let task2 = delayAsync(700, callback:{ })
+        let task3 = delayAsync(500, callback:{ })
+        HNTask.race([task1, task2, task3]).then { value in
+            called = true
+            if let result = value as? Int {
+                XCTAssertEqual(result, 100, "first task should pass the result")
+            } else {
+                XCTFail("result should be a type of Int")
+            }
+            return nil
+        }.waitUntilCompleted()
+
+        HNTask.all([task1, task2, task3]).waitUntilCompleted()
+        
+        XCTAssertTrue(called, "then should be called.")
+    }
+    
+    func testCatchAfterRaceShouleBeCalledWhenTaskReturnsError() {
+        var called = false
+        var value = 0
+        let task1 = delayAsync(500, callback:{ })
+        let task2 = timeoutAsync(150)
+        let task3 = delayAsync(700, callback:{ })
+        HNTask.race([task1, task2, task3]).then { values in
+            return nil
+        }.catch { error in
+            called = true
+            if let err = error as? MyError {
+                XCTAssertEqual(err.message, "timeout")
+            } else {
+                XCTFail("error should be a type of MyError")
+            }
+            return nil
+        }.waitUntilCompleted()
+        
+        HNTask.all([task1, task2, task3]).waitUntilCompleted()
+        
+        XCTAssertTrue(called, "catch should be called.")
+    }
+
 }

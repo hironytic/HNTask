@@ -107,6 +107,35 @@ class HNTask : HNTaskContext {
         return task
     }
     
+    class func race(tasks: HNTask[]) -> HNTask {
+        let task = HNTask()
+        let lock = NSObject()
+        var completed = false
+        
+        for (index, value) in enumerate(tasks) {
+            value.continueWith { context in
+                var doComplete = false
+                objc_sync_enter(lock)
+                if !completed {
+                    completed = true
+                    doComplete = true
+                }
+                objc_sync_exit(lock)
+                
+                if doComplete {
+                    if context.isError() {
+                        task.reject(context.error!)
+                    } else {
+                        task.resolve(context.result)
+                    }
+                }
+                return nil
+            }
+        }
+        
+        return task
+    }
+    
     // @private
     func doInLock<TResult>(callback: () -> TResult) -> TResult {
         objc_sync_enter(_lock)
