@@ -28,7 +28,7 @@
 
 /* Begin PBXFileReference section */
 		505DABE7195272F00051FC79 /* HNTask.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HNTask.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		505DABEB195272F00051FC79 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		505DABEB195272F00051FC79 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../App/Info.plist; sourceTree = "<group>"; };
 		505DABEC195272F00051FC79 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		505DABEE195272F00051FC79 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		505DABF4195272F00051FC79 /* HNTaskTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HNTaskTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,6 +59,7 @@
 		505DABDE195272F00051FC79 = {
 			isa = PBXGroup;
 			children = (
+				50EFB38A19583EF8004FE519 /* App */,
 				505DABE9195272F00051FC79 /* HNTask */,
 				505DABF7195272F00051FC79 /* HNTaskTests */,
 				505DABE8195272F00051FC79 /* Products */,
@@ -79,9 +80,6 @@
 			children = (
 				505DAC041952D9EE0051FC79 /* HNTask.swift */,
 				50A8CE8A19570150007F984F /* HNTaskExecutor.swift */,
-				505DABEC195272F00051FC79 /* AppDelegate.swift */,
-				505DABEE195272F00051FC79 /* Images.xcassets */,
-				505DABEA195272F00051FC79 /* Supporting Files */,
 			);
 			path = HNTask;
 			sourceTree = "<group>";
@@ -92,6 +90,7 @@
 				505DABEB195272F00051FC79 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			path = ../HNTask;
 			sourceTree = "<group>";
 		};
 		505DABF7195272F00051FC79 /* HNTaskTests */ = {
@@ -109,6 +108,16 @@
 				505DABF9195272F00051FC79 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		50EFB38A19583EF8004FE519 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				505DABEC195272F00051FC79 /* AppDelegate.swift */,
+				505DABEE195272F00051FC79 /* Images.xcassets */,
+				505DABEA195272F00051FC79 /* Supporting Files */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -317,7 +326,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				INFOPLIST_FILE = HNTask/Info.plist;
+				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -328,7 +337,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				INFOPLIST_FILE = HNTask/Info.plist;
+				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
