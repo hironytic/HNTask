@@ -1,5 +1,5 @@
 //
-// HNTaskExecutor.swift
+// HNDefaultTaskExecutor.swift
 //
 // Copyright (c) 2014 Hironori Ichimiya <hiron@hironytic.com>
 //
@@ -24,6 +24,15 @@
 
 import Foundation
 
-protocol HNTaskExecutor {
-    func execute(callback: () -> Void)
+class HNDefaultTaskExecutor: HNTaskExecutor {
+    class var sharedExecutor: HNDefaultTaskExecutor {
+    struct Container {
+        static let instance = HNDefaultTaskExecutor()
+        }
+        return Container.instance
+    }
+    
+    func execute(callback: () -> Void) {
+        callback()
+    }
 }

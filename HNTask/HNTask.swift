@@ -31,9 +31,6 @@ protocol HNTaskContext {
     func isError() -> Bool
 }
 
-protocol HNTaskError {
-}
-
 class HNTask : HNTaskContext {
 
     typealias TaskCallback = (HNTaskContext) -> Any?
