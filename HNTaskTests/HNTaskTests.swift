@@ -382,4 +382,21 @@ class HNTaskTests: XCTestCase {
         XCTAssertTrue(called, "catch should be called.")
     }
 
+    func testAsyncTaskExecutorsRunAsync() {
+        var called = false
+        HNAsyncTaskExecutor.sharedExecutor.runAsync {
+            called = true
+            return "ran"
+        }.then { value in
+            if let result = value as? String {
+                XCTAssertEqual(result, "ran", "return value should be passed.")
+            } else {
+                XCTFail("result should be a type of String")
+            }
+            return nil
+        }.waitUntilCompleted()
+
+        XCTAssertTrue(called, "task should be run.")
+    }
+    
 }

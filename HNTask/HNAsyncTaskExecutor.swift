@@ -37,4 +37,10 @@ class HNAsyncTaskExecutor: HNTaskExecutor {
             callback()
         }
     }
+    
+    func runAsync(callback: () -> Any?) -> HNTask {
+        return HNTask.resolvedTask(nil).then(self) { value in
+            return callback()
+        }
+    }
 }
