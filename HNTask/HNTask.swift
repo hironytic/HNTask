@@ -71,11 +71,17 @@ class HNTask : HNTaskContext {
         
         for (index, value) in enumerate(tasks) {
             value.continueWith { context in
-                if (context.isError()) {
+                if context.isError() {
+                    var doReject = false
                     objc_sync_enter(lock)
-                    count = 0
+                    if count > 0 {
+                        count = 0
+                        doReject = true
+                    }
                     objc_sync_exit(lock)
-                    task.reject(context.error!)
+                    if doReject {
+                        task.reject(context.error!)
+                    }
                 } else {
                     let result = context.result
                     results[index] = result
@@ -251,7 +257,7 @@ class HNTask : HNTaskContext {
     
     func waitUntilCompleted() {
         let doWait = doInLock { () -> Bool in
-            if (self.isCompleted()) {
+            if self.isCompleted() {
                 return false
             }
             self._completeCondition.lock()
