@@ -44,6 +44,10 @@ class HNTask : HNTaskContext {
     var _error: HNTaskError? = nil
     var _continuations: (() -> Void)[] = []
 
+    struct DefaultTaskExecutor {
+        static let sharedExecutor = HNAsyncTaskExecutor.sharedExecutor
+    }
+    
     /// creates an uncompleted task
     init() {
         
@@ -235,7 +239,7 @@ class HNTask : HNTaskContext {
     }
     
     func continueWith(callback: TaskCallback) -> HNTask {
-        return continueWith(HNDefaultTaskExecutor.sharedExecutor, callback: callback)
+        return continueWith(DefaultTaskExecutor.sharedExecutor, callback: callback)
     }
     
     func then(executor: HNTaskExecutor, onFulfilled: FulfilledCallback) -> HNTask {
@@ -249,7 +253,7 @@ class HNTask : HNTaskContext {
     }
     
     func then(onFulfilled: FulfilledCallback) -> HNTask {
-        return then(HNDefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled)
+        return then(DefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled)
     }
     
     func then(executor: HNTaskExecutor, onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
@@ -265,7 +269,7 @@ class HNTask : HNTaskContext {
     }
 
     func then(#onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
-        return then(HNDefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled, onRejected: onRejected)
+        return then(DefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled, onRejected: onRejected)
     }
     
     func catch(executor: HNTaskExecutor, onRejected: (HNTaskError) -> Any?) -> HNTask {
@@ -281,7 +285,7 @@ class HNTask : HNTaskContext {
     }
 
     func catch(onRejected: (HNTaskError) -> Any?) -> HNTask {
-        return catch(HNDefaultTaskExecutor.sharedExecutor, onRejected: onRejected)
+        return catch(DefaultTaskExecutor.sharedExecutor, onRejected: onRejected)
     }
     
     func waitUntilCompleted() {
