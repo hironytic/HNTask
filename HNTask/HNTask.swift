@@ -63,6 +63,44 @@ class HNTask : HNTaskContext {
         return task
     }
     
+    class func all(tasks: HNTask[]) -> HNTask {
+        let task = HNTask()
+        let lock = NSObject()
+        var count = tasks.count
+        let results = Array<Any?>(count: count, repeatedValue: nil)
+        
+        for (index, value) in enumerate(tasks) {
+            value.continueWith { context in
+                if (context.isError()) {
+                    objc_sync_enter(lock)
+                    count = 0
+                    objc_sync_exit(lock)
+                    task.reject(context.error!)
+                } else {
+                    let result = context.result
+                    results[index] = result
+                    
+                    var doResolve = false
+                    objc_sync_enter(lock)
+                    if count > 0 {
+                        count--
+                        if count == 0 {
+                            doResolve = true
+                        }
+                    }
+                    objc_sync_exit(lock)
+                    
+                    if doResolve {
+                        task.resolve(results)
+                    }
+                }
+                return nil
+            }
+        }
+        
+        return task
+    }
+    
     // @private
     func doInLock<TResult>(callback: () -> TResult) -> TResult {
         objc_sync_enter(_lock)

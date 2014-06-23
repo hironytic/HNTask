@@ -67,7 +67,7 @@ class HNTaskTests: XCTestCase {
             if let value = context.result as? Int {
                 XCTAssertEqual(value, 10, "previous result should be passed.")
             } else {
-                XCTFail("previous result shoule be Int.")
+                XCTFail("previous result should be Int.")
             }
             return nil
         }.waitUntilCompleted()
@@ -82,7 +82,7 @@ class HNTaskTests: XCTestCase {
             if let value = context.result as? String {
                 XCTAssertEqual(value, "result", "previous return value should be result.")
             } else {
-                XCTFail("previous result shoule be String.")
+                XCTFail("previous result should be String.")
             }
             return nil
         }.waitUntilCompleted()
@@ -103,12 +103,12 @@ class HNTaskTests: XCTestCase {
         task.continueWith { context in
             if let error = context.error {
                 if let myError = error as? MyError {
-                    XCTAssertEqual(myError.message, "error", "error value shoule be passed.")
+                    XCTAssertEqual(myError.message, "error", "error value should be passed.")
                 } else {
-                    XCTFail("error value shoule be type of MyError.")
+                    XCTFail("error value should be type of MyError.")
                 }
             } else {
-                XCTFail("error value shoule be exist.")
+                XCTFail("error value should be exist.")
             }
             return nil
         }.waitUntilCompleted()
@@ -133,7 +133,7 @@ class HNTaskTests: XCTestCase {
         let task = HNTask()
         task.resolve(nil)
         task.continueWith(MyExecutor(queue: myQueue)) { context in
-            XCTAssertNotEqualObjects(testThread, NSThread.currentThread(), "thread shoule be switched")
+            XCTAssertNotEqualObjects(testThread, NSThread.currentThread(), "thread should be switched")
         }.waitUntilCompleted()
     }
 
@@ -144,7 +144,7 @@ class HNTaskTests: XCTestCase {
             if let value = context.result as? Int {
                 XCTAssertEqual(value, 20, "resolved value should be passed.")
             } else {
-                XCTFail("resolved value shoule be Int.")
+                XCTFail("resolved value should be Int.")
             }
             return nil
         }.waitUntilCompleted()
@@ -154,15 +154,15 @@ class HNTaskTests: XCTestCase {
         let task = HNTask.rejectedTask(MyError(message: "rejected"))
         XCTAssertTrue(task.isCompleted(), "task should be completed.")
         task.continueWith { context in
-            XCTAssertTrue(context.isError(), "task shoule be in error state.")
+            XCTAssertTrue(context.isError(), "task should be in error state.")
             if let error = context.error {
                 if let myError = error as? MyError {
-                    XCTAssertEqual(myError.message, "rejected", "error message shoule be 'rejected'")
+                    XCTAssertEqual(myError.message, "rejected", "error message should be 'rejected'")
                 } else {
-                    XCTFail("error value shoule be MyError.")
+                    XCTFail("error value should be MyError.")
                 }
             } else {
-                XCTFail("error value shoule be exist.")
+                XCTFail("error value should be exist.")
             }
             return nil
         }.waitUntilCompleted()
@@ -177,14 +177,14 @@ class HNTaskTests: XCTestCase {
             if let intValue = value as? Int {
                 XCTAssertEqual(intValue, 30, "previous value should be passed.")
             } else {
-                XCTFail("previous value shoule be Int.")
+                XCTFail("previous value should be Int.")
             }
             return nil
         }.waitUntilCompleted()
         XCTAssertTrue(ran, "then closure should run.")
     }
     
-    func testThenShouleNotRunWhenError() {
+    func testThenShouldNotRunWhenError() {
         var ran = false
         HNTask.rejectedTask(MyError(message: "myError")).then { value in
             ran = true
@@ -193,7 +193,7 @@ class HNTaskTests: XCTestCase {
         XCTAssertFalse(ran, "then closure should not run.")
     }
     
-    func testCatchShouleNotRunWhenSucceeded() {
+    func testCatchShouldNotRunWhenSucceeded() {
         var ran = false
         HNTask.resolvedTask(30).catch { error in
             ran = true
@@ -202,29 +202,29 @@ class HNTaskTests: XCTestCase {
         XCTAssertFalse(ran, "catch closure should not run.")
     }
 
-    func testCatchShouleRunWhenError() {
+    func testCatchShouldRunWhenError() {
         var ran = false
         HNTask.rejectedTask(MyError(message: "myError")).catch { error in
             ran = true
             if let myError = error as? MyError {
-                XCTAssertEqual(myError.message, "myError", "error message shoule be 'myError'")
+                XCTAssertEqual(myError.message, "myError", "error message should be 'myError'")
             } else {
-                XCTFail("error value shoule be MyError.")
+                XCTFail("error value should be MyError.")
             }
             return nil
         }.waitUntilCompleted()
         XCTAssertTrue(ran, "then closure should run.")
     }
 
-    func testCatchShouleClearError() {
+    func testCatchShouldConsumeError() {
         HNTask.rejectedTask(MyError(message: "myError")).catch { error in
             return 100
         }.continueWith { context in
-            XCTAssertFalse(context.isError(), "error shoule be cleared")
+            XCTAssertFalse(context.isError(), "error should be consumed.")
             if let intValue = context.result as? Int {
                 XCTAssertEqual(intValue, 100, "previous value should be passed.")
             } else {
-                XCTFail("previous value shoule be Int.")
+                XCTFail("previous value should be Int.")
             }
             return nil
         }.waitUntilCompleted()
@@ -264,6 +264,79 @@ class HNTaskTests: XCTestCase {
             }
             return nil
         }.waitUntilCompleted()
+    }
+    
+    func delayAsync(milliseconds: Int, callback: () -> Void) -> HNTask {
+        let task = HNTask()
+        let delta: Int64 = Int64(milliseconds) * Int64(NSEC_PER_MSEC)
+        let time = dispatch_time(DISPATCH_TIME_NOW, delta);
+        dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+            callback()
+            task.resolve(milliseconds)
+        }
+        return task
+    }
+    
+    func timeoutAsync(milliseconds: Int) -> HNTask {
+        let task = HNTask()
+        let delta: Int64 = Int64(milliseconds) * Int64(NSEC_PER_MSEC)
+        let time = dispatch_time(DISPATCH_TIME_NOW, delta);
+        dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+            task.reject(MyError(message: "timeout"))
+        }
+        return task
+    }
+    
+    func testThenShouldBeCalledAfterAllTasksAreCompleted() {
+        var called = false
+        var value = 0
+        let task1 = delayAsync(100, callback:{ value += 100 })
+        let task2 = delayAsync(300, callback:{ value += 300 })
+        let task3 = delayAsync(200, callback:{ value += 200 })
+        HNTask.all([task1, task2, task3]).then { values in
+            called = true
+            XCTAssertEqual(value, 600, "all task shoule be completed")
+            if let results = values as? Array<Any?> {
+                let v1 = results[0] as Int
+                let v2 = results[1] as Int
+                let v3 = results[2] as Int
+                XCTAssertEqual(v1, 100, "task1 should return 100")
+                XCTAssertEqual(v2, 300, "task1 should return 300")
+                XCTAssertEqual(v3, 200, "task1 should return 200")
+            }
+            return nil
+        }.waitUntilCompleted()
+        
+        task1.waitUntilCompleted()
+        task2.waitUntilCompleted()
+        task3.waitUntilCompleted()
+        
+        XCTAssertTrue(called, "then should be called.")
+    }
+    
+    func testCatchAfterAllShouleBeCalledWhenTaskReturnsError() {
+        var called = false
+        var value = 0
+        let task1 = delayAsync(100, callback:{ value += 100 })
+        let task2 = timeoutAsync(150)
+        let task3 = delayAsync(200, callback:{ value += 200 })
+        HNTask.all([task1, task2, task3]).then { values in
+            return nil
+        }.catch { error in
+            called = true
+            if let err = error as? MyError {
+                XCTAssertEqual(err.message, "timeout")
+            } else {
+                XCTFail("error should be a type of MyError")
+            }
+            return nil
+        }.waitUntilCompleted()
+        
+        task1.waitUntilCompleted()
+        task2.waitUntilCompleted()
+        task3.waitUntilCompleted()
+        
+        XCTAssertTrue(called, "catch should be called.")
     }
     
 }
