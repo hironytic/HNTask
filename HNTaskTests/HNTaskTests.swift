@@ -263,7 +263,7 @@ class HNTaskTests: XCTestCase {
                 XCTFail("result value should be String")
             }
             return nil
-        }
+        }.waitUntilCompleted()
     }
     
 }
