@@ -15,8 +15,8 @@
 		50A8CE8B19570150007F984F /* HNTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A8CE8A19570150007F984F /* HNTaskExecutor.swift */; };
 		50A8CE8C195708E0007F984F /* HNTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A8CE8A19570150007F984F /* HNTaskExecutor.swift */; };
 		50EFB38C195840CE004FE519 /* HNTaskError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38B195840CE004FE519 /* HNTaskError.swift */; };
-		50EFB38E1958412C004FE519 /* HNDefaultTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38D1958412C004FE519 /* HNDefaultTaskExecutor.swift */; };
-		50EFB38F1958412C004FE519 /* HNDefaultTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38D1958412C004FE519 /* HNDefaultTaskExecutor.swift */; };
+		50EFB38E1958412C004FE519 /* HNAsyncTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38D1958412C004FE519 /* HNAsyncTaskExecutor.swift */; };
+		50EFB38F1958412C004FE519 /* HNAsyncTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38D1958412C004FE519 /* HNAsyncTaskExecutor.swift */; };
 		50EFB39019584135004FE519 /* HNTaskError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38B195840CE004FE519 /* HNTaskError.swift */; };
 /* End PBXBuildFile section */
 
@@ -41,7 +41,7 @@
 		505DAC041952D9EE0051FC79 /* HNTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNTask.swift; sourceTree = "<group>"; };
 		50A8CE8A19570150007F984F /* HNTaskExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNTaskExecutor.swift; sourceTree = "<group>"; };
 		50EFB38B195840CE004FE519 /* HNTaskError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNTaskError.swift; sourceTree = "<group>"; };
-		50EFB38D1958412C004FE519 /* HNDefaultTaskExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNDefaultTaskExecutor.swift; sourceTree = "<group>"; };
+		50EFB38D1958412C004FE519 /* HNAsyncTaskExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNAsyncTaskExecutor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,7 +87,7 @@
 				505DAC041952D9EE0051FC79 /* HNTask.swift */,
 				50EFB38B195840CE004FE519 /* HNTaskError.swift */,
 				50A8CE8A19570150007F984F /* HNTaskExecutor.swift */,
-				50EFB38D1958412C004FE519 /* HNDefaultTaskExecutor.swift */,
+				50EFB38D1958412C004FE519 /* HNAsyncTaskExecutor.swift */,
 			);
 			path = HNTask;
 			sourceTree = "<group>";
@@ -229,7 +229,7 @@
 				505DAC051952D9EE0051FC79 /* HNTask.swift in Sources */,
 				505DABED195272F00051FC79 /* AppDelegate.swift in Sources */,
 				50EFB38C195840CE004FE519 /* HNTaskError.swift in Sources */,
-				50EFB38E1958412C004FE519 /* HNDefaultTaskExecutor.swift in Sources */,
+				50EFB38E1958412C004FE519 /* HNAsyncTaskExecutor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,7 +241,7 @@
 				509654F9195587C900136C43 /* HNTask.swift in Sources */,
 				50EFB39019584135004FE519 /* HNTaskError.swift in Sources */,
 				505DABFB195272F00051FC79 /* HNTaskTests.swift in Sources */,
-				50EFB38F1958412C004FE519 /* HNDefaultTaskExecutor.swift in Sources */,
+				50EFB38F1958412C004FE519 /* HNAsyncTaskExecutor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
