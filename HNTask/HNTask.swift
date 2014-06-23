@@ -120,7 +120,7 @@ class HNTask : HNTaskContext {
             self._error = error
         }
         
-        // wake up all waiting thread by waitUntilCompleted()
+        // wake up all threads waiting in waitUntilCompleted()
         self._completeCondition.lock()
         self._completeCondition.broadcast()
         self._completeCondition.unlock()
