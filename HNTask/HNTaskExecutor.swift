@@ -1,5 +1,5 @@
 //
-// HNTaskExecutor.swift
+// HNExecutor.swift
 //
 // Copyright (c) 2014 Hironori Ichimiya <hiron@hironytic.com>
 //
@@ -24,6 +24,6 @@
 
 import Foundation
 
-protocol HNTaskExecutor {
+protocol HNExecutor {
     func execute(callback: () -> Void)
 }

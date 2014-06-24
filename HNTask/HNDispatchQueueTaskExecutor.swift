@@ -1,5 +1,5 @@
 //
-// HNDispatchQueueTaskExecutor.swift
+// HNDispatchQueueExecutor.swift
 //
 // Copyright (c) 2014 Hironori Ichimiya <hiron@hironytic.com>
 //
@@ -24,7 +24,7 @@
 
 import Foundation
 
-class HNDispatchQueueTaskExecutor: HNTaskExecutor {
+class HNDispatchQueueExecutor: HNExecutor {
     let queue: dispatch_queue_t
     
     init(queue: dispatch_queue_t) {

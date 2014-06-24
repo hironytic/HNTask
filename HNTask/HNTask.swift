@@ -45,7 +45,7 @@ class HNTask : HNTaskContext {
     var _continuations: (() -> Void)[] = []
 
     struct DefaultTaskExecutor {
-        static let sharedExecutor = HNAsyncTaskExecutor.sharedExecutor
+        static let sharedExecutor = HNAsyncExecutor.sharedExecutor
     }
     
     /// creates an uncompleted task
@@ -207,7 +207,7 @@ class HNTask : HNTaskContext {
         objc_sync_exit(_lock)
     }
     
-    func continueWith(executor: HNTaskExecutor, callback: TaskCallback) -> HNTask {
+    func continueWith(executor: HNExecutor, callback: TaskCallback) -> HNTask {
         let task = HNTask()
         
         let executeCallback: () -> Void = {
@@ -242,7 +242,7 @@ class HNTask : HNTaskContext {
         return continueWith(DefaultTaskExecutor.sharedExecutor, callback: callback)
     }
     
-    func then(executor: HNTaskExecutor, onFulfilled: FulfilledCallback) -> HNTask {
+    func then(executor: HNExecutor, onFulfilled: FulfilledCallback) -> HNTask {
         return continueWith(executor) { context in
             if context.isError() {
                 return context.result
@@ -256,7 +256,7 @@ class HNTask : HNTaskContext {
         return then(DefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled)
     }
     
-    func then(executor: HNTaskExecutor, onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
+    func then(executor: HNExecutor, onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
         return continueWith(executor) { context in
             if let error = context.error {
                 return HNTask.resolvedTask(nil).continueWith { context in
@@ -272,7 +272,7 @@ class HNTask : HNTaskContext {
         return then(DefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled, onRejected: onRejected)
     }
     
-    func catch(executor: HNTaskExecutor, onRejected: (HNTaskError) -> Any?) -> HNTask {
+    func catch(executor: HNExecutor, onRejected: (HNTaskError) -> Any?) -> HNTask {
         return continueWith(executor) { context in
             if let error = context.error {
                 return HNTask.resolvedTask(nil).continueWith { context in

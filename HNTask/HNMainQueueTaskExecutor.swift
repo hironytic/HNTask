@@ -1,5 +1,5 @@
 //
-// HNMainQueueTaskExecutor.swift
+// HNMainQueueExecutor.swift
 //
 // Copyright (c) 2014 Hironori Ichimiya <hiron@hironytic.com>
 //
@@ -24,10 +24,10 @@
 
 import Foundation
 
-class HNMainQueueTaskExecutor: HNDispatchQueueTaskExecutor {
-    class var sharedExecutor: HNMainQueueTaskExecutor {
+class HNMainQueueExecutor: HNDispatchQueueExecutor {
+    class var sharedExecutor: HNMainQueueExecutor {
     struct Container {
-        static let instance = HNMainQueueTaskExecutor(queue: dispatch_get_main_queue())
+        static let instance = HNMainQueueExecutor(queue: dispatch_get_main_queue())
         }
         return Container.instance
     }

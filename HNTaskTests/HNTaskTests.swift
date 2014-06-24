@@ -116,7 +116,7 @@ class HNTaskTests: XCTestCase {
     
     func testThreadShouldSwitchedByExecutor() {
         let myQueue = dispatch_queue_create("com.hironytic.hntasktests", nil)
-        class MyExecutor: HNTaskExecutor {
+        class MyExecutor: HNExecutor {
             let queue: dispatch_queue_t
             init(queue: dispatch_queue_t) {
                 self.queue = queue
@@ -382,9 +382,9 @@ class HNTaskTests: XCTestCase {
         XCTAssertTrue(called, "catch should be called.")
     }
 
-    func testAsyncTaskExecutorsRunAsync() {
+    func testAsyncExecutorsRunAsync() {
         var called = false
-        HNAsyncTaskExecutor.sharedExecutor.runAsync {
+        HNAsyncExecutor.sharedExecutor.runAsync {
             called = true
             return "ran"
         }.then { value in

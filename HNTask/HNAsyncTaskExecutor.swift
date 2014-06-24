@@ -1,5 +1,5 @@
 //
-// HNAsyncTaskExecutor.swift
+// HNAsyncExecutor.swift
 //
 // Copyright (c) 2014 Hironori Ichimiya <hiron@hironytic.com>
 //
@@ -24,10 +24,10 @@
 
 import Foundation
 
-class HNAsyncTaskExecutor: HNTaskExecutor {
-    class var sharedExecutor: HNAsyncTaskExecutor {
+class HNAsyncExecutor: HNExecutor {
+    class var sharedExecutor: HNAsyncExecutor {
     struct Container {
-        static let instance = HNAsyncTaskExecutor()
+        static let instance = HNAsyncExecutor()
         }
         return Container.instance
     }
