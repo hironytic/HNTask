@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		502C69B0195919E80075F2EC /* HNDispatchQueueTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C69AF195919E80075F2EC /* HNDispatchQueueTaskExecutor.swift */; };
+		502C69B219591AEE0075F2EC /* HNMainQueueTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C69B119591AEE0075F2EC /* HNMainQueueTaskExecutor.swift */; };
+		502C69B319591AEE0075F2EC /* HNMainQueueTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C69B119591AEE0075F2EC /* HNMainQueueTaskExecutor.swift */; };
+		502C69B419591E060075F2EC /* HNDispatchQueueTaskExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C69AF195919E80075F2EC /* HNDispatchQueueTaskExecutor.swift */; };
 		505DABED195272F00051FC79 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DABEC195272F00051FC79 /* AppDelegate.swift */; };
 		505DABEF195272F00051FC79 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 505DABEE195272F00051FC79 /* Images.xcassets */; };
 		505DABFB195272F00051FC79 /* HNTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DABFA195272F00051FC79 /* HNTaskTests.swift */; };
@@ -31,6 +35,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		502C69AF195919E80075F2EC /* HNDispatchQueueTaskExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNDispatchQueueTaskExecutor.swift; sourceTree = "<group>"; };
+		502C69B119591AEE0075F2EC /* HNMainQueueTaskExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNMainQueueTaskExecutor.swift; sourceTree = "<group>"; };
 		505DABE7195272F00051FC79 /* HNTask.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HNTask.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		505DABEB195272F00051FC79 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../App/Info.plist; sourceTree = "<group>"; };
 		505DABEC195272F00051FC79 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -84,10 +90,12 @@
 		505DABE9195272F00051FC79 /* HNTask */ = {
 			isa = PBXGroup;
 			children = (
+				50EFB38D1958412C004FE519 /* HNAsyncTaskExecutor.swift */,
+				502C69AF195919E80075F2EC /* HNDispatchQueueTaskExecutor.swift */,
+				502C69B119591AEE0075F2EC /* HNMainQueueTaskExecutor.swift */,
 				505DAC041952D9EE0051FC79 /* HNTask.swift */,
 				50EFB38B195840CE004FE519 /* HNTaskError.swift */,
 				50A8CE8A19570150007F984F /* HNTaskExecutor.swift */,
-				50EFB38D1958412C004FE519 /* HNAsyncTaskExecutor.swift */,
 			);
 			path = HNTask;
 			sourceTree = "<group>";
@@ -226,7 +234,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				50A8CE8B19570150007F984F /* HNTaskExecutor.swift in Sources */,
+				502C69B0195919E80075F2EC /* HNDispatchQueueTaskExecutor.swift in Sources */,
 				505DAC051952D9EE0051FC79 /* HNTask.swift in Sources */,
+				502C69B219591AEE0075F2EC /* HNMainQueueTaskExecutor.swift in Sources */,
 				505DABED195272F00051FC79 /* AppDelegate.swift in Sources */,
 				50EFB38C195840CE004FE519 /* HNTaskError.swift in Sources */,
 				50EFB38E1958412C004FE519 /* HNAsyncTaskExecutor.swift in Sources */,
@@ -238,7 +248,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				50A8CE8C195708E0007F984F /* HNTaskExecutor.swift in Sources */,
+				502C69B419591E060075F2EC /* HNDispatchQueueTaskExecutor.swift in Sources */,
 				509654F9195587C900136C43 /* HNTask.swift in Sources */,
+				502C69B319591AEE0075F2EC /* HNMainQueueTaskExecutor.swift in Sources */,
 				50EFB39019584135004FE519 /* HNTaskError.swift in Sources */,
 				505DABFB195272F00051FC79 /* HNTaskTests.swift in Sources */,
 				50EFB38F1958412C004FE519 /* HNAsyncTaskExecutor.swift in Sources */,

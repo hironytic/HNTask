@@ -1,5 +1,5 @@
 //
-// HNAsyncTaskExecutor.swift
+// HNDispatchQueueTaskExecutor.swift
 //
 // Copyright (c) 2014 Hironori Ichimiya <hiron@hironytic.com>
 //
@@ -24,16 +24,15 @@
 
 import Foundation
 
-class HNAsyncTaskExecutor: HNTaskExecutor {
-    class var sharedExecutor: HNAsyncTaskExecutor {
-    struct Container {
-        static let instance = HNAsyncTaskExecutor()
-        }
-        return Container.instance
+class HNDispatchQueueTaskExecutor: HNTaskExecutor {
+    let queue: dispatch_queue_t
+    
+    init(queue: dispatch_queue_t) {
+        self.queue = queue
     }
     
     func execute(callback: () -> Void) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), callback)
+        dispatch_async(queue, callback)
     }
     
     func runAsync(callback: () -> Any?) -> HNTask {
