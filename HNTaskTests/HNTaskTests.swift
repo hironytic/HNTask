@@ -42,8 +42,7 @@ class HNTaskTests: XCTestCase {
 
     func testContinuationShouldRun() {
         var continued = false
-        let task = HNTask()
-        task.resolve(nil)
+        let task = HNTask.resolve(nil)
         task.continueWith { context in
             continued = true
         }.waitUntilCompleted()
@@ -52,8 +51,7 @@ class HNTaskTests: XCTestCase {
 
     func testContinuationShouldRunWhenRejected() {
         var continued = false
-        let task = HNTask()
-        task.reject(MyError(message: "error"))
+        let task = HNTask.reject(MyError(message: "error"))
         task.continueWith { context in
             continued = true
         }.waitUntilCompleted()
@@ -61,8 +59,7 @@ class HNTaskTests: XCTestCase {
     }
     
     func testResultShouldBePassed() {
-        let task = HNTask()
-        task.resolve(10)
+        let task = HNTask.resolve(10)
         task.continueWith { context in
             if let value = context.result as? Int {
                 XCTAssertEqual(value, 10, "previous result should be passed.")
@@ -74,8 +71,7 @@ class HNTaskTests: XCTestCase {
     }
     
     func testReturnValueShouldBeResult() {
-        let task = HNTask()
-        task.resolve(nil)
+        let task = HNTask.resolve(nil)
         task.continueWith { context in
             return "result"
         }.continueWith { context in
@@ -89,8 +85,7 @@ class HNTaskTests: XCTestCase {
     }
     
     func testRejectShouldCauseError() {
-        let task = HNTask()
-        task.reject(MyError(message: "error"))
+        let task = HNTask.reject(MyError(message: "error"))
         task.continueWith { context in
             XCTAssertTrue(context.isError(), "error should be occured.")
             return nil
@@ -98,8 +93,7 @@ class HNTaskTests: XCTestCase {
     }
     
     func testErrorValueShouldBePassed() {
-        let task = HNTask()
-        task.reject(MyError(message: "error"))
+        let task = HNTask.reject(MyError(message: "error"))
         task.continueWith { context in
             if let error = context.error {
                 if let myError = error as? MyError {
@@ -130,15 +124,14 @@ class HNTaskTests: XCTestCase {
         
         let testThread = NSThread.currentThread()
         
-        let task = HNTask()
-        task.resolve(nil)
+        let task = HNTask.resolve(nil)
         task.continueWith(MyExecutor(queue: myQueue)) { context in
             XCTAssertNotEqualObjects(testThread, NSThread.currentThread(), "thread should be switched")
         }.waitUntilCompleted()
     }
 
     func testResolvedTask() {
-        let task = HNTask.resolvedTask(20)
+        let task = HNTask.resolve(20)
         XCTAssertTrue(task.isCompleted(), "task should be completed.")
         task.continueWith { context in
             if let value = context.result as? Int {
@@ -151,7 +144,7 @@ class HNTaskTests: XCTestCase {
     }
     
     func testRejectedTask() {
-        let task = HNTask.rejectedTask(MyError(message: "rejected"))
+        let task = HNTask.reject(MyError(message: "rejected"))
         XCTAssertTrue(task.isCompleted(), "task should be completed.")
         task.continueWith { context in
             XCTAssertTrue(context.isError(), "task should be in error state.")
@@ -172,7 +165,7 @@ class HNTaskTests: XCTestCase {
     
     func testThenShouldRunWhenSucceeded() {
         var ran = false
-        HNTask.resolvedTask(30).then { value in
+        HNTask.resolve(30).then { value in
             ran = true
             if let intValue = value as? Int {
                 XCTAssertEqual(intValue, 30, "previous value should be passed.")
@@ -186,7 +179,7 @@ class HNTaskTests: XCTestCase {
     
     func testThenShouldNotRunWhenError() {
         var ran = false
-        HNTask.rejectedTask(MyError(message: "myError")).then { value in
+        HNTask.reject(MyError(message: "myError")).then { value in
             ran = true
             return nil
         }.waitUntilCompleted()
@@ -195,7 +188,7 @@ class HNTaskTests: XCTestCase {
     
     func testCatchShouldNotRunWhenSucceeded() {
         var ran = false
-        HNTask.resolvedTask(30).catch { error in
+        HNTask.resolve(30).catch { error in
             ran = true
             return nil
         }.waitUntilCompleted()
@@ -204,7 +197,7 @@ class HNTaskTests: XCTestCase {
 
     func testCatchShouldRunWhenError() {
         var ran = false
-        HNTask.rejectedTask(MyError(message: "myError")).catch { error in
+        HNTask.reject(MyError(message: "myError")).catch { error in
             ran = true
             if let myError = error as? MyError {
                 XCTAssertEqual(myError.message, "myError", "error message should be 'myError'")
@@ -217,7 +210,7 @@ class HNTaskTests: XCTestCase {
     }
 
     func testCatchShouldConsumeError() {
-        HNTask.rejectedTask(MyError(message: "myError")).catch { error in
+        HNTask.reject(MyError(message: "myError")).catch { error in
             return 100
         }.continueWith { context in
             XCTAssertFalse(context.isError(), "error should be consumed.")
@@ -231,29 +224,29 @@ class HNTaskTests: XCTestCase {
     }
     
     func makeStringAsync(str: String) -> HNTask {
-        let task = HNTask.resolvedTask(str + "s")
+        let task = HNTask.resolve(str + "s")
         return task
     }
     
     func testExecutionOrder() {
-        HNTask.resolvedTask("").then { value in
+        HNTask.resolve("").then { value in
             if let str = value as? String {
                 return str + "a"
             } else {
-                return HNTask.rejectedTask(MyError(message: "error"))
+                return HNTask.reject(MyError(message: "error"))
             }
         }.then { value in
             if var str = value as? String {
                 str += "b"
                 return self.makeStringAsync(str)
             } else {
-                return HNTask.rejectedTask(MyError(message: "error"))
+                return HNTask.reject(MyError(message: "error"))
             }
         }.then { value in
             if let str = value as? String {
                 return str + "c"
             } else {
-                return HNTask.rejectedTask(MyError(message: "error"))
+                return HNTask.reject(MyError(message: "error"))
             }
         }.continueWith { context in
             XCTAssertFalse(context.isError(), "error should not occured")
@@ -267,22 +260,24 @@ class HNTaskTests: XCTestCase {
     }
     
     func delayAsync(milliseconds: Int, callback: () -> Void) -> HNTask {
-        let task = HNTask()
-        let delta: Int64 = Int64(milliseconds) * Int64(NSEC_PER_MSEC)
-        let time = dispatch_time(DISPATCH_TIME_NOW, delta);
-        dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-            callback()
-            task.resolve(milliseconds)
+        let task = HNTask.newTask { (resolve, reject) in
+            let delta: Int64 = Int64(milliseconds) * Int64(NSEC_PER_MSEC)
+            let time = dispatch_time(DISPATCH_TIME_NOW, delta);
+            dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+                callback()
+                resolve(milliseconds)
+            }
         }
         return task
     }
     
     func timeoutAsync(milliseconds: Int) -> HNTask {
-        let task = HNTask()
-        let delta: Int64 = Int64(milliseconds) * Int64(NSEC_PER_MSEC)
-        let time = dispatch_time(DISPATCH_TIME_NOW, delta);
-        dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-            task.reject(MyError(message: "timeout"))
+        let task = HNTask.newTask { (resolve, reject) in
+            let delta: Int64 = Int64(milliseconds) * Int64(NSEC_PER_MSEC)
+            let time = dispatch_time(DISPATCH_TIME_NOW, delta);
+            dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+                reject(MyError(message: "timeout"))
+            }
         }
         return task
     }

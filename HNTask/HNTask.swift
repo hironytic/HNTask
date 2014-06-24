@@ -48,22 +48,33 @@ class HNTask : HNTaskContext {
         static let sharedExecutor = HNAsyncExecutor.sharedExecutor
     }
     
-    /// creates an uncompleted task
     init() {
-        
     }
 
-    /// creates an resolved task
-    class func resolvedTask(result: Any?) -> HNTask {
+    /// creates an uncompleted task
+    class func newTask(callback: ((Any?) -> Void, (HNTaskError) -> Void) -> Void) -> HNTask {
         let task = HNTask()
-        task.resolve(result)
+        let resolver = { (result: Any?) -> Void in
+            task.complete(result: result, error: nil)
+        }
+        let rejector = { (error: HNTaskError) -> Void in
+            task.complete(result: nil, error: error)
+        }
+        callback(resolver, rejector)
+        return task
+    }
+    
+    /// creates an resolved task
+    class func resolve(result: Any?) -> HNTask {
+        let task = HNTask()
+        task.complete(result: result, error: nil)
         return task
     }
 
     /// creates an rejected task
-    class func rejectedTask(error: HNTaskError) -> HNTask {
+    class func reject(error: HNTaskError) -> HNTask {
         let task = HNTask()
-        task.reject(error)
+        task.complete(result: nil, error: error)
         return task
     }
     
@@ -84,7 +95,7 @@ class HNTask : HNTaskContext {
                     }
                     objc_sync_exit(lock)
                     if doReject {
-                        task.reject(context.error!)
+                        task.complete(result: nil, error: context.error!)
                     }
                 } else {
                     let result = context.result
@@ -101,7 +112,7 @@ class HNTask : HNTaskContext {
                     objc_sync_exit(lock)
                     
                     if doResolve {
-                        task.resolve(results)
+                        task.complete(result: results, error: nil)
                     }
                 }
                 return nil
@@ -128,9 +139,9 @@ class HNTask : HNTaskContext {
                 
                 if doComplete {
                     if context.isError() {
-                        task.reject(context.error!)
+                        task.complete(result: nil, error: context.error!)
                     } else {
-                        task.resolve(context.result)
+                        task.complete(result: context.result, error: nil)
                     }
                 }
                 return nil
@@ -176,14 +187,6 @@ class HNTask : HNTaskContext {
         })
     }
 
-    func resolve(result: Any?) {
-        complete(result: result, error: nil)
-    }
-    
-    func reject(error: HNTaskError) {
-        complete(result: nil, error: error)
-    }
-    
     // @private
     func complete(#result: Any?, error: HNTaskError?) {
         // doInLock is not used here for reduction of the call stack size.
@@ -259,7 +262,7 @@ class HNTask : HNTaskContext {
     func then(executor: HNExecutor, onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
         return continueWith(executor) { context in
             if let error = context.error {
-                return HNTask.resolvedTask(nil).continueWith { context in
+                return HNTask.resolve(nil).continueWith { context in
                     return onRejected(error)
                 }
             } else {
@@ -275,7 +278,7 @@ class HNTask : HNTaskContext {
     func catch(executor: HNExecutor, onRejected: (HNTaskError) -> Any?) -> HNTask {
         return continueWith(executor) { context in
             if let error = context.error {
-                return HNTask.resolvedTask(nil).continueWith { context in
+                return HNTask.resolve(nil).continueWith { context in
                     return onRejected(error)
                 }
             } else {

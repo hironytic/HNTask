@@ -36,7 +36,7 @@ class HNDispatchQueueExecutor: HNExecutor {
     }
     
     func runAsync(callback: () -> Any?) -> HNTask {
-        return HNTask.resolvedTask(nil).then(self) { value in
+        return HNTask.resolve(nil).then(self) { value in
             return callback()
         }
     }
