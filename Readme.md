@@ -7,13 +7,13 @@ With `HNTask`, you can organize asynchronous operations in the pattern like a Ja
 
 ## Example
 
-In this example, `UserList.countUserAsync()` and `self.makeTotalUserStringAsync()` are functions which require some asynchronous operation to get a result. Each of these functions returns a `HNTask` object.
-When the asynchronous operation is done in success, the next then -block is called. If error occurs in the operation, then-block is skipped and the next catch-block is called.
+In this example, `countUserAsync()` and `makeTotalUserStringAsync()` are functions which require some asynchronous operation to get a result. Each of these functions returns an `HNTask` object.
+When the asynchronous operation is done in success, the next then -block is called. If an error occurs in the operation, then-block is skipped and the next catch-block is called.
 
 ```swift
 extension NSError: HNTaskError { }
 
-UserList.countUsersAsync().then { value in
+userList.countUsersAsync().then { value in
     let count = value as Int
     if count <= 0 {
         return HNTask.reject(NSError(domain: "MyDomain",
@@ -33,9 +33,9 @@ UserList.countUsersAsync().then { value in
 }
 ```
 
-## Creating New Task
+## Creating a New Task
 
-Use `HNTask.newTask()` to create a new task. It returns an unresolved (uncompleted) task object which is resolved or rejected when the operation is done. The passed block is called immediately to start asynchronous operation and it takes two function parameters, `resolve` and `reject`. Call one of these function to resolve or reject the task.
+Use `HNTask.newTask()` to create a new task. It returns an unresolved (uncompleted) task object which should be resolved or rejected when the operation is done. The passed block is called immediately to start asynchronous operation. It takes two function parameters, `resolve` and `reject`. Call one of these function to resolve or reject the task.
 
 For convenience, you can also create a new task by `HNTask.resove()` or `HNTask.reject()`. These functions return a resolved or rejected task. Use these functions if you know the result of the task before creating it.
 
@@ -93,7 +93,7 @@ HNTask.resolve(3).then { value in
 
 ## Error Handling
 
-When an asynchronous operation failed, you can make an error by calling `reject` function which is passed as parameter (see *Creating New Task*). If an error has occured in then-block, you can reject the task chain by returning rejected `HNTask` object.
+When an asynchronous operation fails, you can make an error by calling `reject` function which is passed as parameter of newTask-block (see *Creating a New Task*). If an error has occured in then-block, you can reject the task chain by returning rejected `HNTask` object.
 
 Both of `reject` function or `HNTask.reject()` take one error object which conforms to `HNTaskError` protocol. `HNTaskError` protocol requires no property nor method. You can define your own class for error object, or you can extend an existing class by extension to make it adopt `HNTaskError`. In the first example shown in *Example*, `NSError` class is extended.
 
@@ -129,17 +129,36 @@ HNTask.resolve(-3).then { value in
 
 ## Run Tasks in Series
 
-TODO:
+You can run tasks in series by simply chaining tasks.
+Here is an example of tasks in the for-in loop.
 
-write about ```task = task.then({ })``` style in for-loop.
+```swift
+userList.countUsersAsync().then { value in
+    let count = value as Int
+    
+    var task = HNTask.resolve(nil)
+    for index in 0..count {
+        task = task.then { value in
+            return userList.getUserNameAsync(index)
+        }.then { value in
+            if let name = value as? String {
+                self.addNameToList(name)
+            }
+            return nil
+        }
+    }
+    
+    return nil
+}
+```
 
 ## Waiting Multiple Tasks
 
-TODO:
+write later...
 
-- `BNTask.all()`
-- `BNTask.race()`
+- `HNTask.all()`
+- `HNTask.race()`
 
 ## Executor
 
-TODO:
+write later...
