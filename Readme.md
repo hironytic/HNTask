@@ -71,7 +71,7 @@ If you return an `HNTask` object in then-block, it is executed prior to next blo
 ```swift
 func eatAsync(food: String) -> HNTask {
     let task = HNTask.newTask { (resolve, reject) in
-        // supporse callItAfter fires 300 milliseconds later
+        // suppose callItAfter runs the block 300 milliseconds later
         callItAfter(300) {
             resolve("I ate \(food)")
         }
