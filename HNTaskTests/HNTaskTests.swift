@@ -298,6 +298,8 @@ class HNTaskTests: XCTestCase {
                 XCTAssertEqual(v1, 100, "task1 should return 100")
                 XCTAssertEqual(v2, 300, "task1 should return 300")
                 XCTAssertEqual(v3, 200, "task1 should return 200")
+            } else {
+                XCTFail("values should be a type of Array")
             }
             return nil
         }.waitUntilCompleted()
@@ -349,7 +351,7 @@ class HNTaskTests: XCTestCase {
             return nil
         }.waitUntilCompleted()
 
-        HNTask.all([task1, task2, task3]).waitUntilCompleted()
+        HNTask.allSettled([task1, task2, task3]).waitUntilCompleted()
         
         XCTAssertTrue(called, "then should be called.")
     }
@@ -372,11 +374,77 @@ class HNTaskTests: XCTestCase {
             return nil
         }.waitUntilCompleted()
         
-        HNTask.all([task1, task2, task3]).waitUntilCompleted()
+        HNTask.allSettled([task1, task2, task3]).waitUntilCompleted()
         
         XCTAssertTrue(called, "catch should be called.")
     }
 
+    func testThenShouldBeCalledAfterAllTasksAreSettled() {
+        var called = false
+        var value = 0
+        let task1 = delayAsync(100, callback:{ value += 100 })
+        let task2 = delayAsync(300, callback:{ value += 300 })
+        let task3 = delayAsync(200, callback:{ value += 200 })
+        HNTask.allSettled([task1, task2, task3]).then { values in
+            called = true
+            XCTAssertEqual(value, 600, "all task shoule be completed")
+            if let results = values as? Array<Any?> {
+                let v1 = results[0] as Int
+                let v2 = results[1] as Int
+                let v3 = results[2] as Int
+                XCTAssertEqual(v1, 100, "task1 should return 100")
+                XCTAssertEqual(v2, 300, "task1 should return 300")
+                XCTAssertEqual(v3, 200, "task1 should return 200")
+            } else {
+                XCTFail("values should be a type of Array")
+            }
+            return nil
+        }.waitUntilCompleted()
+        
+        task1.waitUntilCompleted()
+        task2.waitUntilCompleted()
+        task3.waitUntilCompleted()
+        
+        XCTAssertTrue(called, "then should be called.")
+    }
+
+    func testThenShouldBeCalledAfterAllTasksAreSettledEvenIfOneOfThemIsRejected() {
+        var called = false
+        var value = 0
+        let task1 = delayAsync(100, callback:{ value += 100 })
+        let task2 = timeoutAsync(150)
+        let task3 = delayAsync(200, callback:{ value += 200 })
+        HNTask.allSettled([task1, task2, task3]).then { values in
+            called = true
+            XCTAssertTrue(task1.isCompleted(), "task1 should be completed")
+            XCTAssertTrue(task2.isCompleted(), "task2 should be completed")
+            XCTAssertTrue(task3.isCompleted(), "task3 should be completed")
+            
+            if let results = values as? Array<Any?> {
+                let v1 = results[0] as Int
+                let v3 = results[2] as Int
+                XCTAssertEqual(v1, 100, "task1 should return 100")
+                XCTAssertEqual(v3, 200, "task1 should return 200")
+                
+                if let v2 = results[1] as? MyError {
+                    XCTAssertEqual(v2.message, "timeout", "task2 should be timeout.")
+                } else {
+                    XCTFail("values[1] should be a type of MyError.")
+                }
+            } else {
+                XCTFail("values should be a type of Array.")
+            }
+            return nil
+        }.waitUntilCompleted()
+        
+        task1.waitUntilCompleted()
+        task2.waitUntilCompleted()
+        task3.waitUntilCompleted()
+        
+        XCTAssertTrue(called, "then should be called.")
+    }
+
+    
     func testAsyncExecutorsRunAsync() {
         var called = false
         HNAsyncExecutor.sharedExecutor.runAsync {
