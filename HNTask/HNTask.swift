@@ -24,16 +24,9 @@
 
 import Foundation
 
-protocol HNTaskContext {
-    var result: Any? { get }
-    var error: HNTaskError? { get }
-    
-    func isError() -> Bool
-}
+class HNTask {
 
-class HNTask : HNTaskContext {
-
-    typealias TaskCallback = (HNTaskContext) -> Any?
+    typealias TaskCallback = (HNTask) -> Any?
     typealias FulfilledCallback = (Any?) -> Any?
     typealias RejectedCallback = (HNTaskError) -> Any?
     
