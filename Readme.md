@@ -156,8 +156,53 @@ userList.countUsersAsync().then { value in
 
 write later...
 
-- `HNTask.all()`
+```swift
+let tasks = [
+    userList.getUserNameAsync(1),
+    userList.getUserNameAsync(3),
+    userList.getUserNameAsync(5)
+]
+
+HNTask.all(tasks).then { value in
+    // after all task is resolved, this block is executed
+    // parameter value is an array contains resolved values
+    // of each task in the same order.
+    let list = value as (Any?)[]
+    for v in list {
+        if let name = v as? String {
+            self.addNameToList(name)
+        }
+    }
+    return nil
+}.catch { error in
+    // when one of the tasks rejected, this block is executed
+    // in this case, other tasks could be uncompleted yet
+    println(error)
+    return nil
+}
+```
+
+```swift
+HNTask.allSettled(tasks).then { value in
+    // after all task is resolved/rejected, this block is executed
+    // parameter value is an array contains resolved/rejected values
+    // of each task in the same order.
+    let list = value as (Any?)[]
+    for v in list {
+        if let error = v as? MyError {
+            println(error)
+        } else if let name = v as? String {
+            self.addNameToList(name)
+        }
+    }
+    return nil
+}
+```
+
+
 - `HNTask.race()`
+
+
 
 ## Executor
 
