@@ -38,7 +38,7 @@ class HNTask {
     var _continuations: (() -> Void)[] = []
 
     struct DefaultTaskExecutor {
-        static let sharedExecutor = HNAsyncExecutor.sharedExecutor
+        static var sharedExecutor: HNExecutor = HNAsyncExecutor.sharedExecutor
     }
     
     init() {
