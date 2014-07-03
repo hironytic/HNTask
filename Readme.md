@@ -13,8 +13,7 @@ When the asynchronous operation is done in success, the next then-block is calle
 ```swift
 extension NSError: HNTaskError { }
 
-userList.countUsersAsync().then { value in
-    let count = value as Int
+userList.countUsersAsync().then { (count: Int) in
     if count <= 0 {
         return HNTask.reject(NSError(domain: "MyDomain",
                                        code: 1,
@@ -22,8 +21,7 @@ userList.countUsersAsync().then { value in
     } else {
         return makeTotalUserStringAsync(count)
     }
-}.then { value in
-    let message = value as String
+}.then { (message: String) in
     showMessage(message)
     return nil
 }.catch { error in
@@ -62,11 +60,9 @@ let rejectedTask = HNTask.reject(MyError(code: 100))
 
 An `HNTask` object has a method `then()`. It returns a new `HNTask` object. You can chain then-blocks by calling `then()` of the returned `HNTask`.
 
-The then-block, closure parameter of `then()`, is executed after the task is resolved. The block takes one parameter whose value is the result of the task, and it was passed to `resolve` function or a return value in previous then-block.
+The then-block, closure parameter of `then()`, is executed after the task is resolved. The block takes one parameter whose value is the result of the task, which was passed to `resolve` function or was a return value in previous then-block. If you specify the type of the closure parameter, as shown in the first and the second then-blocks in example below, the type of the result value is checked. When types are mismatch, the then-block is not executed and the task is rejected with an `HNTaskTypeError` value. You cannot specify an optional (such as `FooType?`) in type.
 
-You must return a result value in the block. If you have no result, return `nil`.
-
-If you return an `HNTask` object in then-block, it is executed prior to next block. In the following example, the last then-block, in which a value is printed out, is executed after the task returned by `eatAsync()` is executed. In fact, it is the time `resolve("I ate \(food)")` run.
+You must return a result value in the block. If you have no result, return `nil`. When you return an `HNTask` object in then-block, it is executed prior to next block. In the following example, the last then-block, in which a value is printed out, is executed after the task returned by `eatAsync()` is executed. In fact, it is the time `resolve("I ate \(food)")` run.
 
 ```swift
 func eatAsync(food: String) -> HNTask {
@@ -79,12 +75,10 @@ func eatAsync(food: String) -> HNTask {
     return task
 }
 
-HNTask.resolve(3).then { value in
-    let number = value as Int       // number == 3
-    return "\(number) apples"
-}.then { value in
-    let string = value as String    // string == "3 apples"
-    return eatAsync(string)
+HNTask.resolve(3).then { (number: Int) in
+    return "\(number) apples"       // number == 3
+}.then { (string: String) in
+    return eatAsync(string)         // string == "3 apples"
 }.then { value in
     println(value)                  // value == "I ate 3 apples."
     return nil
@@ -109,8 +103,7 @@ class MyError: HNTaskError {
     }
 }
 
-HNTask.resolve(-3).then { value in
-    let number = value as Int
+HNTask.resolve(-3).then { (number: Int) in
     if number >= 0 {
         return "\(number) apples"
     } else {
@@ -133,9 +126,7 @@ You can run tasks in series by simply chaining tasks.
 Here is an example of tasks in the for-in loop.
 
 ```swift
-userList.countUsersAsync().then { value in
-    let count = value as Int
-    
+userList.countUsersAsync().then { (count: Int) in
     var task = HNTask.resolve(nil)
     for index in 0..count {
         task = task.then { value in
@@ -259,9 +250,9 @@ func doSomethingAsync() -> HNTask {
 By using this executor, you can force the task execute on main thread. For example, you may want to update the UI controls on main thread.
 
 ```swift
-userList.getUserNameAsync(1).then(HNMainQueueExecutor.sharedExecutor) { value in
+userList.getUserNameAsync(1).then(HNMainQueueExecutor.sharedExecutor) { (value: String) in
     // this block is executed on main thread.
-    nameLabel.text = value as String
+    nameLabel.text = value
     return nil
 }
 ```
