@@ -186,6 +186,54 @@ class HNTaskTests: XCTestCase {
         XCTAssertFalse(ran, "then closure should not run.")
     }
     
+    func testTypeCheckThenShouldRunWhenSucceeded() {
+        var ran = false
+        HNTask.resolve(30).then { (value: Int) in
+            ran = true
+            XCTAssertEqual(value, 30, "previous value should be passed.")
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertTrue(ran, "then closure should run.")
+    }
+    
+    func testTypeCheckThenShouldNotRunWhenError() {
+        var ran = false
+        HNTask.reject(MyError(message: "myError")).then { (value: Int) in
+            ran = true
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertFalse(ran, "then closure should not run.")
+    }
+    
+    func testTypeCheckThenShouldNotRunWhenTypeMismatch() {
+        var ran = false
+        HNTask.resolve(40).then { (value: String) in
+            ran = true
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertFalse(ran, "then closure should not run.")
+    }
+    
+    func testTypeCheckThenShouldMakeError() {
+        var isError = false
+        HNTask.resolve(40).then { (value: String) in
+            return nil
+        }.catch { error in
+            isError = true
+            if let typeError = error as? HNTaskTypeError {
+                if let errorValue = typeError.value as? Int {
+                    XCTAssertEqual(errorValue, 40, "error value shoule be 40.")
+                } else {
+                    XCTFail("error value shoule be Int")
+                }
+            } else {
+                XCTFail("error shoule be kind of HNTaskTypeError")
+            }
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertTrue(isError, "error should be occured.")
+    }
+    
     func testCatchShouldNotRunWhenSucceeded() {
         var ran = false
         HNTask.resolve(30).catch { error in

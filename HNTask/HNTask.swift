@@ -284,6 +284,22 @@ class HNTask {
         return then(DefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled)
     }
     
+    func then<T>(executor: HNExecutor, onFulfilledInType: (T) -> Any?) -> HNTask {
+        return continueWith(executor) { context in
+            if context.isError() {
+                return context.result
+            } else if let result = context.result as? T {
+                return onFulfilledInType(result)
+            } else {
+                return HNTask.reject(HNTaskTypeError(value: context.result))
+            }
+        }
+    }
+
+    func then<T>(onFulfilledInType: (T) -> Any?) -> HNTask {
+        return then(DefaultTaskExecutor.sharedExecutor, onFulfilledInType: onFulfilledInType)
+    }
+    
     func then(executor: HNExecutor, onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
         return continueWith(executor) { context in
             if let error = context.error {
@@ -298,6 +314,26 @@ class HNTask {
 
     func then(#onFulfilled: FulfilledCallback, onRejected: RejectedCallback) -> HNTask {
         return then(DefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled, onRejected: onRejected)
+    }
+
+    func then<T>(executor: HNExecutor, onFulfilledInType: (T) -> Any?, onRejected: RejectedCallback) -> HNTask {
+        return continueWith(executor) { context in
+            if let error = context.error {
+                return HNTask.resolve(nil).continueWith { context in
+                    return onRejected(error)
+                }
+            } else if let result = context.result as? T {
+                return onFulfilledInType(result)
+            } else {
+                return HNTask.resolve(nil).continueWith { context in
+                    return onRejected(HNTaskTypeError(value: context.result))
+                }
+            }
+        }
+    }
+
+    func then<T>(onFulfilledInType: (T) -> Any?, onRejected: RejectedCallback) -> HNTask {
+        return then(DefaultTaskExecutor.sharedExecutor, onFulfilledInType: onFulfilledInType, onRejected: onRejected)
     }
     
     func catch(executor: HNExecutor, onRejected: (HNTaskError) -> Any?) -> HNTask {
