@@ -160,7 +160,7 @@ HNTask.all(tasks).then { value in
     // after all task is resolved, this block is executed.
     // the parameter value is an array contains the
     // resolved values of each task in the same order.
-    let list = value as (Any?)[]
+    let list = value as [Any?]
     for v in list {
         if let name = v as? String {
             addNameToList(name)
@@ -180,7 +180,7 @@ HNTask.allSettled(tasks).then { value in
     // after all task is resolved/rejected, this block is executed
     // parameter value is an array contains resolved/rejected values
     // of each task in the same order.
-    let list = value as (Any?)[]
+    let list = value as [Any?]
     for v in list {
         if let error = v as? MyError {
             println(error)
