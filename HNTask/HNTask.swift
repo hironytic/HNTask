@@ -35,7 +35,7 @@ class HNTask {
     let _completeCondition: NSCondition = NSCondition()
     var _result: Any? = nil
     var _error: HNTaskError? = nil
-    var _continuations: (() -> Void)[] = []
+    var _continuations: [(() -> Void)] = []
 
     struct DefaultTaskExecutor {
         static var sharedExecutor: HNExecutor = HNAsyncExecutor.sharedExecutor
@@ -71,12 +71,12 @@ class HNTask {
         return task
     }
     
-    class func all(tasks: HNTask[]) -> HNTask {
+    class func all(tasks: [HNTask]) -> HNTask {
         let task = HNTask()
         let lock = NSObject()
         var count = tasks.count
-        let results = Array<Any?>(count: count, repeatedValue: nil)
-        
+        var results = [Any?](count: count, repeatedValue: nil)
+
         for (index, value) in enumerate(tasks) {
             value.continueWith { context in
                 if context.isError() {
@@ -103,7 +103,8 @@ class HNTask {
                     objc_sync_exit(lock)
                     
                     if doResolve {
-                        task.complete(result: results, error: nil)
+                        let resultValue: Any = results
+                        task.complete(result: resultValue, error: nil)
                     }
                 }
                 return nil
@@ -113,7 +114,7 @@ class HNTask {
         return task
     }
     
-    class func race(tasks: HNTask[]) -> HNTask {
+    class func race(tasks: [HNTask]) -> HNTask {
         let task = HNTask()
         let lock = NSObject()
         var completed = false
@@ -142,11 +143,11 @@ class HNTask {
         return task
     }
     
-    class func allSettled(tasks: HNTask[]) -> HNTask {
+    class func allSettled(tasks: [HNTask]) -> HNTask {
         let task = HNTask()
         let lock = NSObject()
         var count = tasks.count
-        let results = Array<Any?>(count: count, repeatedValue: nil)
+        var results = [Any?](count: count, repeatedValue: nil)
         
         for (index, value) in enumerate(tasks) {
             value.continueWith { context in
@@ -166,7 +167,8 @@ class HNTask {
                 objc_sync_exit(lock)
                 
                 if doResolve {
-                    task.complete(result: results, error: nil)
+                    let resultValue: Any = results
+                    task.complete(result: resultValue, error: nil)
                 }
                 return nil
             }
