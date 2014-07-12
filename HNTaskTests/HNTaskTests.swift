@@ -45,6 +45,7 @@ class HNTaskTests: XCTestCase {
         let task = HNTask.resolve(nil)
         task.continueWith { context in
             continued = true
+            return (nil, nil)
         }.waitUntilCompleted()
         XCTAssertTrue(continued, "continuation closure should run.")
     }
@@ -54,6 +55,7 @@ class HNTaskTests: XCTestCase {
         let task = HNTask.reject(MyError(message: "error"))
         task.continueWith { context in
             continued = true
+            return (nil, nil)
         }.waitUntilCompleted()
         XCTAssertTrue(continued, "continuation closure should run.")
     }
@@ -66,21 +68,21 @@ class HNTaskTests: XCTestCase {
             } else {
                 XCTFail("previous result should be Int.")
             }
-            return nil
+            return (nil, nil)
         }.waitUntilCompleted()
     }
     
     func testReturnValueShouldBeResult() {
         let task = HNTask.resolve(nil)
         task.continueWith { context in
-            return "result"
+            return ("result", nil)
         }.continueWith { context in
             if let value = context.result as? String {
                 XCTAssertEqual(value, "result", "previous return value should be result.")
             } else {
                 XCTFail("previous result should be String.")
             }
-            return nil
+            return (nil, nil)
         }.waitUntilCompleted()
     }
     
@@ -88,7 +90,7 @@ class HNTaskTests: XCTestCase {
         let task = HNTask.reject(MyError(message: "error"))
         task.continueWith { context in
             XCTAssertTrue(context.isError(), "error should be occured.")
-            return nil
+            return (nil, nil)
         }.waitUntilCompleted()
     }
     
@@ -104,7 +106,7 @@ class HNTaskTests: XCTestCase {
             } else {
                 XCTFail("error value should be exist.")
             }
-            return nil
+            return (nil, nil)
         }.waitUntilCompleted()
     }
     
@@ -127,6 +129,7 @@ class HNTaskTests: XCTestCase {
         let task = HNTask.resolve(nil)
         task.continueWith(MyExecutor(queue: myQueue)) { context in
             XCTAssertNotEqualObjects(testThread, NSThread.currentThread(), "thread should be switched")
+            return (nil, nil)
         }.waitUntilCompleted()
     }
 
@@ -139,7 +142,7 @@ class HNTaskTests: XCTestCase {
             } else {
                 XCTFail("resolved value should be Int.")
             }
-            return nil
+            return (nil, nil)
         }.waitUntilCompleted()
     }
     
@@ -157,7 +160,7 @@ class HNTaskTests: XCTestCase {
             } else {
                 XCTFail("error value should be exist.")
             }
-            return nil
+            return (nil, nil)
         }.waitUntilCompleted()
         
     }
@@ -267,7 +270,7 @@ class HNTaskTests: XCTestCase {
             } else {
                 XCTFail("previous value should be Int.")
             }
-            return nil
+            return (nil, nil)
         }.waitUntilCompleted()
     }
     
@@ -303,7 +306,7 @@ class HNTaskTests: XCTestCase {
             } else {
                 XCTFail("result value should be String")
             }
-            return nil
+            return (nil, nil)
         }.waitUntilCompleted()
     }
     
