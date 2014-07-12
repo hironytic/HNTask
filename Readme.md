@@ -120,6 +120,8 @@ HNTask.resolve(-3).then { (number: Int) in
 }
 ```
 
+The method `finally()` returns a new `HNTask` like `then()` but the returned task will be resolved or rejected with the same value of the previous task, in other words, it does not modify the final value. You can return another task in finally-block. In this case, the completion of the task returned by `finally()` will be delayed until the task returned by finally-block is finished. If you don't have another task in finally-block, simply return nil. Unlike `then()`, you cannot return other values because the finally-block cannot change the resolved value (or rejected value) of the task.
+
 ## Run Tasks in Series
 
 You can run tasks in series by simply chaining tasks.

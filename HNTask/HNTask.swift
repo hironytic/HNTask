@@ -343,6 +343,28 @@ class HNTask {
         return catch(DefaultTaskExecutor.sharedExecutor, onRejected: onRejected)
     }
     
+    func finally(executor: HNExecutor, onFinal: () -> HNTask?) -> HNTask {
+        return continueWith(executor) { context in
+            let result = context.result
+            let error = context.error
+            
+            if let finalResultTask = onFinal() {
+                let task = HNTask()
+                finalResultTask.continueWith { context in
+                    task.complete(result: result, error: error)
+                    return (nil, nil)
+                }
+                return (task, nil)
+            } else {
+                return (result, error)
+            }
+        }
+    }
+    
+    func finally(onFinal: () -> HNTask?) -> HNTask {
+        return finally(DefaultTaskExecutor.sharedExecutor, onFinal: onFinal)
+    }
+    
     func waitUntilCompleted() {
         let doWait = doInLock { () -> Bool in
             if self.isCompleted() {
