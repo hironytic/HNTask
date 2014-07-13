@@ -274,6 +274,38 @@ class HNTaskTests: XCTestCase {
         }.waitUntilCompleted()
     }
     
+    func testFinallyShouldRunWhenSucceeded() {
+        var ran = false
+        HNTask.resolve(30).finally {
+            ran = true
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertTrue(ran, "catch closure should not run.")
+    }
+
+    func testFinallyShouldRunWhenFailed() {
+        var ran = false
+        HNTask.reject(MyError(message: "myError")).finally {
+            ran = true
+            return nil
+        }.waitUntilCompleted()
+        XCTAssertTrue(ran, "catch closure should not run.")
+    }
+    
+    func testFinallyShouldCompleteAfterReturnedTasksCompletion() {
+        var v = 0
+        HNTask.resolve(30).finally {
+            return self.delayAsync(1) {
+                v = 100
+            }
+        }.then { value in
+            XCTAssertEqual(v, 100, "called after the task returnd from finally()")
+            return nil
+        }.waitUntilCompleted()
+    }
+    
+    // TODO: testFinallyShouldNotChangeResultValue()
+    
     func makeStringAsync(str: String) -> HNTask {
         let task = HNTask.resolve(str + "s")
         return task
