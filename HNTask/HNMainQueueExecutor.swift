@@ -24,10 +24,10 @@
 
 import Foundation
 
-class HNMainQueueExecutor: HNDispatchQueueExecutor {
-    class var sharedExecutor: HNMainQueueExecutor {
-    struct Container {
-        static let instance = HNMainQueueExecutor(queue: dispatch_get_main_queue())
+public class HNMainQueueExecutor: HNDispatchQueueExecutor {
+    class public var sharedExecutor: HNMainQueueExecutor {
+        struct Container {
+            static let instance = HNMainQueueExecutor(queue: dispatch_get_main_queue())
         }
         return Container.instance
     }

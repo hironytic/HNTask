@@ -24,19 +24,19 @@
 
 import Foundation
 
-class HNAsyncExecutor: HNExecutor {
-    class var sharedExecutor: HNAsyncExecutor {
-    struct Container {
-        static let instance = HNAsyncExecutor()
+public class HNAsyncExecutor: HNExecutor {
+    class public var sharedExecutor: HNAsyncExecutor {
+        struct Container {
+            static let instance = HNAsyncExecutor()
         }
         return Container.instance
     }
     
-    func execute(callback: () -> Void) {
+    public func execute(callback: () -> Void) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), callback)
     }
     
-    func runAsync(callback: () -> Any?) -> HNTask {
+    public func runAsync(callback: () -> Any?) -> HNTask {
         return HNTask.resolve(nil).then(self) { value in
             return callback()
         }

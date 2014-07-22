@@ -24,6 +24,6 @@
 
 import Foundation
 
-protocol HNExecutor {
-    func execute(callback: () -> Void)
+public protocol HNExecutor {
+     func execute(callback: () -> Void)
 }

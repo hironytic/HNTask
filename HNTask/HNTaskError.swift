@@ -24,5 +24,5 @@
 
 import Foundation
 
-protocol HNTaskError {
+public protocol HNTaskError {
 }

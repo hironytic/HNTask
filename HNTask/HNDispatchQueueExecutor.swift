@@ -24,18 +24,18 @@
 
 import Foundation
 
-class HNDispatchQueueExecutor: HNExecutor {
-    let queue: dispatch_queue_t
+public class HNDispatchQueueExecutor: HNExecutor {
+    private let queue: dispatch_queue_t
     
-    init(queue: dispatch_queue_t) {
+    public init(queue: dispatch_queue_t) {
         self.queue = queue
     }
     
-    func execute(callback: () -> Void) {
+    public func execute(callback: () -> Void) {
         dispatch_async(queue, callback)
     }
     
-    func runAsync(callback: () -> Any?) -> HNTask {
+    public func runAsync(callback: () -> Any?) -> HNTask {
         return HNTask.resolve(nil).then(self) { value in
             return callback()
         }

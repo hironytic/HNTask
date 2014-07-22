@@ -24,23 +24,23 @@
 
 import Foundation
 
-class HNTask {
-    let _lock = NSObject()
-    var _completed: Bool = false
-    let _completeCondition: NSCondition = NSCondition()
-    var _result: Any? = nil
-    var _error: HNTaskError? = nil
-    var _continuations: [(() -> Void)] = []
+public class HNTask {
+    private let _lock = NSObject()
+    private var _completed: Bool = false
+    private let _completeCondition: NSCondition = NSCondition()
+    private var _result: Any? = nil
+    private var _error: HNTaskError? = nil
+    private var _continuations: [(() -> Void)] = []
 
-    struct DefaultTaskExecutor {
-        static var sharedExecutor: HNExecutor = HNAsyncExecutor.sharedExecutor
+    public struct DefaultTaskExecutor {
+        static public var sharedExecutor: HNExecutor = HNAsyncExecutor.sharedExecutor
     }
     
-    init() {
+    public init() {
     }
 
     /// creates an uncompleted task
-    class func newTask(callback: ((Any?) -> Void, (HNTaskError) -> Void) -> Void) -> HNTask {
+    class public func newTask(callback: ((Any?) -> Void, (HNTaskError) -> Void) -> Void) -> HNTask {
         let task = HNTask()
         let resolver = { (result: Any?) -> Void in
             task.complete(result: result, error: nil)
@@ -53,20 +53,20 @@ class HNTask {
     }
     
     /// creates an resolved task
-    class func resolve(result: Any?) -> HNTask {
+    class public func resolve(result: Any?) -> HNTask {
         let task = HNTask()
         task.complete(result: result, error: nil)
         return task
     }
 
     /// creates an rejected task
-    class func reject(error: HNTaskError) -> HNTask {
+    class public func reject(error: HNTaskError) -> HNTask {
         let task = HNTask()
         task.complete(result: nil, error: error)
         return task
     }
     
-    class func all(tasks: [HNTask]) -> HNTask {
+    class public func all(tasks: [HNTask]) -> HNTask {
         let task = HNTask()
         let lock = NSObject()
         var count = tasks.count
@@ -109,7 +109,7 @@ class HNTask {
         return task
     }
     
-    class func race(tasks: [HNTask]) -> HNTask {
+    class public func race(tasks: [HNTask]) -> HNTask {
         let task = HNTask()
         let lock = NSObject()
         var completed = false
@@ -138,7 +138,7 @@ class HNTask {
         return task
     }
     
-    class func allSettled(tasks: [HNTask]) -> HNTask {
+    class public func allSettled(tasks: [HNTask]) -> HNTask {
         let task = HNTask()
         let lock = NSObject()
         var count = tasks.count
@@ -173,15 +173,14 @@ class HNTask {
     }
 
     
-    // @private
-    func doInLock<TResult>(callback: () -> TResult) -> TResult {
+    private func doInLock<TResult>(callback: () -> TResult) -> TResult {
         objc_sync_enter(_lock)
         let result = callback()
         objc_sync_exit(_lock)
         return result
     }
     
-    var result: Any? {
+    public var result: Any? {
         get {
             return doInLock { () -> Any? in
                 return self._result
@@ -189,7 +188,7 @@ class HNTask {
         }
     }
     
-    var error: HNTaskError? {
+    public var error: HNTaskError? {
         get {
             return doInLock { () -> HNTaskError? in
                 return self._error
@@ -197,20 +196,19 @@ class HNTask {
         }
     }
     
-    func isError() -> Bool {
+    public func isError() -> Bool {
         return doInLock { () -> Bool in
             return self._error ? true : false
         }
     }
 
-    func isCompleted() -> Bool {
+    public func isCompleted() -> Bool {
         return doInLock({ () -> Bool in
             return self._completed
         })
     }
 
-    // @private
-    func complete(#result: Any?, error: HNTaskError?) {
+    private func complete(#result: Any?, error: HNTaskError?) {
         // doInLock is not used here for reduction of the call stack size.
         objc_sync_enter(_lock)
         if !self._completed {
@@ -232,7 +230,7 @@ class HNTask {
         objc_sync_exit(_lock)
     }
     
-    func continueWith(executor: HNExecutor, callback: (HNTask) -> (result: Any?, error: HNTaskError?)) -> HNTask {
+    public func continueWith(executor: HNExecutor, callback: (HNTask) -> (result: Any?, error: HNTaskError?)) -> HNTask {
         let task = HNTask()
         
         let executeCallback: () -> Void = {
@@ -265,11 +263,11 @@ class HNTask {
         return task
     }
     
-    func continueWith(callback: (HNTask) -> (result: Any?, error: HNTaskError?)) -> HNTask {
+    public func continueWith(callback: (HNTask) -> (result: Any?, error: HNTaskError?)) -> HNTask {
         return continueWith(DefaultTaskExecutor.sharedExecutor, callback: callback)
     }
     
-    func then(executor: HNExecutor, onFulfilled: (Any?) -> Any?) -> HNTask {
+    public func then(executor: HNExecutor, onFulfilled: (Any?) -> Any?) -> HNTask {
         return continueWith(executor) { context in
             if context.isError() {
                 return (nil, context.error)
@@ -279,11 +277,11 @@ class HNTask {
         }
     }
     
-    func then(onFulfilled: (Any?) -> Any?) -> HNTask {
+    public func then(onFulfilled: (Any?) -> Any?) -> HNTask {
         return then(DefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled)
     }
     
-    func then<T>(executor: HNExecutor, onFulfilledInType: (T) -> Any?) -> HNTask {
+    public func then<T>(executor: HNExecutor, onFulfilledInType: (T) -> Any?) -> HNTask {
         return continueWith(executor) { context in
             if context.isError() {
                 return (nil, context.error)
@@ -295,11 +293,11 @@ class HNTask {
         }
     }
 
-    func then<T>(onFulfilledInType: (T) -> Any?) -> HNTask {
+    public func then<T>(onFulfilledInType: (T) -> Any?) -> HNTask {
         return then(DefaultTaskExecutor.sharedExecutor, onFulfilledInType: onFulfilledInType)
     }
     
-    func then(executor: HNExecutor, onFulfilled: (Any?) -> Any?, onRejected: (HNTaskError) -> Any?) -> HNTask {
+    public func then(executor: HNExecutor, onFulfilled: (Any?) -> Any?, onRejected: (HNTaskError) -> Any?) -> HNTask {
         return continueWith(executor) { context in
             if let error = context.error {
                 return (onRejected(error), nil)
@@ -309,11 +307,11 @@ class HNTask {
         }
     }
 
-    func then(#onFulfilled: (Any?) -> Any?, onRejected: (HNTaskError) -> Any?) -> HNTask {
+    public func then(#onFulfilled: (Any?) -> Any?, onRejected: (HNTaskError) -> Any?) -> HNTask {
         return then(DefaultTaskExecutor.sharedExecutor, onFulfilled: onFulfilled, onRejected: onRejected)
     }
 
-    func then<T>(executor: HNExecutor, onFulfilledInType: (T) -> Any?, onRejected: (HNTaskError) -> Any?) -> HNTask {
+    public func then<T>(executor: HNExecutor, onFulfilledInType: (T) -> Any?, onRejected: (HNTaskError) -> Any?) -> HNTask {
         return continueWith(executor) { context in
             if let error = context.error {
                 return (onRejected(error), nil)
@@ -325,11 +323,11 @@ class HNTask {
         }
     }
 
-    func then<T>(onFulfilledInType: (T) -> Any?, onRejected: (HNTaskError) -> Any?) -> HNTask {
+    public func then<T>(onFulfilledInType: (T) -> Any?, onRejected: (HNTaskError) -> Any?) -> HNTask {
         return then(DefaultTaskExecutor.sharedExecutor, onFulfilledInType: onFulfilledInType, onRejected: onRejected)
     }
     
-    func catch(executor: HNExecutor, onRejected: (HNTaskError) -> Any?) -> HNTask {
+    public func catch(executor: HNExecutor, onRejected: (HNTaskError) -> Any?) -> HNTask {
         return continueWith(executor) { context in
             if let error = context.error {
                 return (onRejected(error), nil)
@@ -339,11 +337,11 @@ class HNTask {
         }
     }
 
-    func catch(onRejected: (HNTaskError) -> Any?) -> HNTask {
+    public func catch(onRejected: (HNTaskError) -> Any?) -> HNTask {
         return catch(DefaultTaskExecutor.sharedExecutor, onRejected: onRejected)
     }
     
-    func finally(executor: HNExecutor, onFinal: () -> HNTask?) -> HNTask {
+    public func finally(executor: HNExecutor, onFinal: () -> HNTask?) -> HNTask {
         return continueWith(executor) { context in
             let result = context.result
             let error = context.error
@@ -361,11 +359,11 @@ class HNTask {
         }
     }
     
-    func finally(onFinal: () -> HNTask?) -> HNTask {
+    public func finally(onFinal: () -> HNTask?) -> HNTask {
         return finally(DefaultTaskExecutor.sharedExecutor, onFinal: onFinal)
     }
     
-    func waitUntilCompleted() {
+    public func waitUntilCompleted() {
         let doWait = doInLock { () -> Bool in
             if self.isCompleted() {
                 return false
