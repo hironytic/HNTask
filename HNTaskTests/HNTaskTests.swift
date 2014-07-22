@@ -339,7 +339,7 @@ class HNTaskTests: XCTestCase {
         let expectation = expectationWithDescription("finish task");
         var v = 0
         HNTask.resolve(30).finally {
-            return self.delayAsync(1) {
+            return self.delayAsync(100) {
                 v = 100
             }
         }.then { value in
@@ -350,7 +350,73 @@ class HNTaskTests: XCTestCase {
         waitForExpectationsWithTimeout(5.0, handler: nil)
     }
     
-    // TODO: testFinallyShouldNotChangeResultValue()
+    func testFinallyShouldNotChangeResultValue() {
+        let expectation = expectationWithDescription("finish task");
+        HNTask.resolve(30).finally {
+            return nil
+        }.continueWith { context in
+            XCTAssertFalse(context.isError(), "error should not occured")
+            if let value = context.result as? Int {
+                XCTAssertEqual(value, 30, "result value should not change")
+            } else {
+                XCTFail("result value shoule be Int")
+            }
+            expectation.fulfill()
+            return (nil, nil)
+        }
+        waitForExpectationsWithTimeout(5.0, handler: nil)
+    }
+    
+    func testFinallyShouldNotChangeErrorValue() {
+        let expectation = expectationWithDescription("finish task");
+        HNTask.reject(MyError(message: "error1")).finally {
+            return nil
+        }.continueWith { context in
+            XCTAssertTrue(context.isError(), "error should remain")
+            if let error = context.error as? MyError {
+                XCTAssertEqual(error.message, "error1", "error value should not change")
+            } else {
+                XCTFail("error value shoule be MyError")
+            }
+            expectation.fulfill()
+            return (nil, nil)
+        }
+        waitForExpectationsWithTimeout(5.0, handler: nil)
+    }
+
+    func testFinallyShouldNotChangeResultValueAfterReturnedTasksCompletion() {
+        let expectation = expectationWithDescription("finish task");
+        HNTask.resolve(30).finally {
+            return self.delayAsync(100) { }
+        }.continueWith { context in
+            XCTAssertFalse(context.isError(), "error should not occured")
+            if let value = context.result as? Int {
+                XCTAssertEqual(value, 30, "result value should not change")
+            } else {
+                XCTFail("result value shoule be Int")
+            }
+            expectation.fulfill()
+            return (nil, nil)
+        }
+        waitForExpectationsWithTimeout(5.0, handler: nil)
+    }
+    
+    func testFinallyShouldNotChangeErrorValueAfterReturnedTasksCompletion() {
+        let expectation = expectationWithDescription("finish task");
+        HNTask.reject(MyError(message: "error1")).finally {
+            return self.delayAsync(100) { }
+        }.continueWith { context in
+            XCTAssertTrue(context.isError(), "error should remain")
+            if let error = context.error as? MyError {
+                XCTAssertEqual(error.message, "error1", "error value should not change")
+            } else {
+                XCTFail("error value shoule be MyError")
+            }
+            expectation.fulfill()
+            return (nil, nil)
+        }
+        waitForExpectationsWithTimeout(5.0, handler: nil)
+    }
     
     func makeStringAsync(str: String) -> HNTask {
         let task = HNTask.resolve(str + "s")
