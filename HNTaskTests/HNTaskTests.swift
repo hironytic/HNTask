@@ -128,7 +128,7 @@ class HNTaskTests: XCTestCase {
         
         let task = HNTask.resolve(nil)
         task.continueWith(MyExecutor(queue: myQueue)) { context in
-            XCTAssertNotEqualObjects(testThread, NSThread.currentThread(), "thread should be switched")
+            XCTAssertFalse(testThread.isEqual(NSThread.currentThread()), "thread should be switched")
             return (nil, nil)
         }.waitUntilCompleted()
     }
@@ -534,6 +534,7 @@ class HNTaskTests: XCTestCase {
             called = true
             return "ran"
         }.then { value in
+            XCTFail("test")
             if let result = value as? String {
                 XCTAssertEqual(result, "ran", "return value should be passed.")
             } else {
