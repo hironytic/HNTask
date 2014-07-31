@@ -24,7 +24,7 @@
 
 import Foundation
 
-public class HNTaskTypeError: HNTaskError {
+public class HNTaskTypeError {
     public let value: Any?
     
     init(value: Any?) {

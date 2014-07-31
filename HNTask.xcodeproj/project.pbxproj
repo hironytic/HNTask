@@ -21,10 +21,8 @@
 		509654F9195587C900136C43 /* HNTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DAC041952D9EE0051FC79 /* HNTask.swift */; };
 		50A8CE8B19570150007F984F /* HNExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A8CE8A19570150007F984F /* HNExecutor.swift */; };
 		50A8CE8C195708E0007F984F /* HNExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A8CE8A19570150007F984F /* HNExecutor.swift */; };
-		50EFB38C195840CE004FE519 /* HNTaskError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38B195840CE004FE519 /* HNTaskError.swift */; };
 		50EFB38E1958412C004FE519 /* HNAsyncExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38D1958412C004FE519 /* HNAsyncExecutor.swift */; };
 		50EFB38F1958412C004FE519 /* HNAsyncExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38D1958412C004FE519 /* HNAsyncExecutor.swift */; };
-		50EFB39019584135004FE519 /* HNTaskError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EFB38B195840CE004FE519 /* HNTaskError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,7 +49,6 @@
 		507B4CDC19659A0C000BC58E /* HNTaskTypeError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNTaskTypeError.swift; sourceTree = "<group>"; };
 		509406F5195D048500B6BD2F /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		50A8CE8A19570150007F984F /* HNExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNExecutor.swift; sourceTree = "<group>"; };
-		50EFB38B195840CE004FE519 /* HNTaskError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNTaskError.swift; sourceTree = "<group>"; };
 		50EFB38D1958412C004FE519 /* HNAsyncExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNAsyncExecutor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -100,7 +97,6 @@
 				50A8CE8A19570150007F984F /* HNExecutor.swift */,
 				502C69B119591AEE0075F2EC /* HNMainQueueExecutor.swift */,
 				505DAC041952D9EE0051FC79 /* HNTask.swift */,
-				50EFB38B195840CE004FE519 /* HNTaskError.swift */,
 				507B4CDC19659A0C000BC58E /* HNTaskTypeError.swift */,
 			);
 			path = HNTask;
@@ -246,7 +242,6 @@
 				505DAC051952D9EE0051FC79 /* HNTask.swift in Sources */,
 				502C69B219591AEE0075F2EC /* HNMainQueueExecutor.swift in Sources */,
 				505DABED195272F00051FC79 /* AppDelegate.swift in Sources */,
-				50EFB38C195840CE004FE519 /* HNTaskError.swift in Sources */,
 				50EFB38E1958412C004FE519 /* HNAsyncExecutor.swift in Sources */,
 				509406F6195D048500B6BD2F /* MainViewController.swift in Sources */,
 			);
@@ -260,7 +255,6 @@
 				502C69B419591E060075F2EC /* HNDispatchQueueExecutor.swift in Sources */,
 				509654F9195587C900136C43 /* HNTask.swift in Sources */,
 				502C69B319591AEE0075F2EC /* HNMainQueueExecutor.swift in Sources */,
-				50EFB39019584135004FE519 /* HNTaskError.swift in Sources */,
 				507B4CDE19659A0C000BC58E /* HNTaskTypeError.swift in Sources */,
 				505DABFB195272F00051FC79 /* HNTaskTests.swift in Sources */,
 				50EFB38F1958412C004FE519 /* HNAsyncExecutor.swift in Sources */,

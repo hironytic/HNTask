@@ -26,7 +26,7 @@ import XCTest
 
 class HNTaskTests: XCTestCase {
     
-    struct MyError: HNTaskError {
+    struct MyError {
         let message: String
     }
     

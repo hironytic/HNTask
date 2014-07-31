@@ -11,8 +11,6 @@ In this example, `countUserAsync()` and `makeTotalUserStringAsync()` are functio
 When the asynchronous operation is done in success, the next then-block is called. If an error occurs in the operation, then-block is skipped and the next catch-block is called.
 
 ```swift
-extension NSError: HNTaskError { }
-
 userList.countUsersAsync().then { (count: Int) in
     if count <= 0 {
         return HNTask.reject(NSError(domain: "MyDomain",
@@ -89,14 +87,14 @@ HNTask.resolve(3).then { (number: Int) in
 
 When an asynchronous operation fails, you can make an error by calling `reject` function which is passed as parameter of newTask-block (see *Creating a New Task*). If an error has occured in then-block, you can reject the task chain by returning rejected `HNTask` object.
 
-Both of `reject` function or `HNTask.reject()` take one error object which conforms to `HNTaskError` protocol. `HNTaskError` protocol requires no property nor method. You can define your own class for error object, or you can extend an existing class by extension to make it adopt `HNTaskError`. In the first example shown in *Example*, `NSError` class is extended.
+Both of `reject` function or `HNTask.reject()` take one error value. Any object can be an error value so you can pass such as NSError, String, Int, or your custom error object.
 
 If a task was rejected, next then-blocks are not called but catch-block is called. You can handle errors in catch-block. The error object which was used in rejection is passed to catch-block as a pameter.
 
 The method `catch()` returns a new `HNTask` like `then()` and you can chain more then-block and/or catch-block.
 
 ```swift
-class MyError: HNTaskError {
+class MyError {
     let code: Int
     init(code: Int) {
         self.code = code
