@@ -458,7 +458,7 @@ class HNTaskTests: XCTestCase {
     }
     
     func delayAsync(milliseconds: Int, callback: () -> Void) -> HNTask {
-        let task = HNTask.newTask { (resolve, reject) in
+        let task = HNTask { (resolve, reject) in
             let delta: Int64 = Int64(milliseconds) * Int64(NSEC_PER_MSEC)
             let time = dispatch_time(DISPATCH_TIME_NOW, delta);
             dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
@@ -470,7 +470,7 @@ class HNTaskTests: XCTestCase {
     }
     
     func timeoutAsync(milliseconds: Int) -> HNTask {
-        let task = HNTask.newTask { (resolve, reject) in
+        let task = HNTask { (resolve, reject) in
             let delta: Int64 = Int64(milliseconds) * Int64(NSEC_PER_MSEC)
             let time = dispatch_time(DISPATCH_TIME_NOW, delta);
             dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {

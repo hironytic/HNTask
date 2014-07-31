@@ -36,22 +36,21 @@ public class HNTask {
         static public var sharedExecutor: HNExecutor = HNAsyncExecutor.sharedExecutor
     }
     
-    public init() {
-    }
-
-    /// creates an uncompleted task
-    class public func newTask(callback: ((Any?) -> Void, (Any) -> Void) -> Void) -> HNTask {
-        let task = HNTask()
-        let resolver = { (result: Any?) -> Void in
-            task.complete(result: result, error: nil)
-        }
-        let rejector = { (error: Any) -> Void in
-            task.complete(result: nil, error: error)
-        }
-        callback(resolver, rejector)
-        return task
+    private init() {
     }
     
+    /// creates an uncompleted task
+    public convenience init(callback: ((Any?) -> Void, (Any) -> Void) -> Void) {
+        self.init()
+        let resolver = { (result: Any?) -> Void in
+            self.complete(result: result, error: nil)
+        }
+        let rejector = { (error: Any) -> Void in
+            self.complete(result: nil, error: error)
+        }
+        callback(resolver, rejector)
+    }
+
     /// creates an resolved task
     class public func resolve(result: Any?) -> HNTask {
         let task = HNTask()

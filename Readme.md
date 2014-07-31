@@ -31,14 +31,14 @@ userList.countUsersAsync().then { (count: Int) in
 
 ## Creating a New Task
 
-Use `HNTask.newTask()` to create a new task. It returns an unresolved (uncompleted) task object which should be resolved or rejected when the operation is done. The passed block is called immediately to start asynchronous operation. It takes two function parameters, `resolve` and `reject`. Call one of these function to resolve or reject the task.
+Use `HNTask(callback:)` to create a new task. It returns an unresolved (uncompleted) task object which should be resolved or rejected when the operation is done. The passed callback block is called immediately to start asynchronous operation. It takes two function parameters, `resolve` and `reject`. Call one of these function to resolve or reject the task.
 
 For convenience, you can also create a new task by `HNTask.resove()` or `HNTask.reject()`. These functions return a resolved or rejected task. Use these functions if you know the result of the task before creating it.
 
 For more information about rejecting, see *Error Handling*.
 
 ```swift
-let unresolvedTask = HNTask.newTask { (resolve, reject) in
+let unresolvedTask = HNTask { (resolve, reject) in
     // do some asynchronous operation
     SomeAPI.post(url, 
         success: { result in
@@ -64,7 +64,7 @@ You must return a result value in the block. If you have no result, return `nil`
 
 ```swift
 func eatAsync(food: String) -> HNTask {
-    let task = HNTask.newTask { (resolve, reject) in
+    let task = HNTask { (resolve, reject) in
         // suppose callItAfter runs the block 300 milliseconds later
         callItAfter(300) {
             resolve("I ate \(food)")
@@ -85,7 +85,7 @@ HNTask.resolve(3).then { (number: Int) in
 
 ## Error Handling
 
-When an asynchronous operation fails, you can make an error by calling `reject` function which is passed as parameter of newTask-block (see *Creating a New Task*). If an error has occured in then-block, you can reject the task chain by returning rejected `HNTask` object.
+When an asynchronous operation fails, you can make an error by calling `reject` function which is passed as parameter in callback block of the initializer (see *Creating a New Task*). If an error has occured in then-block, you can reject the task chain by returning rejected `HNTask` object.
 
 Both of `reject` function or `HNTask.reject()` take one error value. Any object can be an error value so you can pass such as NSError, String, Int, or your custom error object.
 
@@ -196,7 +196,7 @@ By using `HNTask.race()`, you can wait until one of the task is resolved. In thi
 
 ```swift
 func setTimeoutAsync(milliseconds: Int) -> HNTask {
-    return HNTask.newTask { resolve, reject in
+    return HNTask { (resolve, reject) in
         callItAfter(milliseconds) {
             resolve("(timeout)")
         }
