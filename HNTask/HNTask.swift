@@ -197,7 +197,12 @@ public class HNTask {
     
     public func isError() -> Bool {
         return doInLock { () -> Bool in
-            return self._error ? true : false
+            let error = self._error
+            return error != nil
+            
+            // why...? we get an error in Xcode 6 beta 5
+            // error: type 'UInt8' does not conform to protocol 'NilLiteralConvertible'
+//            return self._error != nil
         }
     }
 

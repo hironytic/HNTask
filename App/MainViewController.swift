@@ -26,11 +26,6 @@ import UIKit
 
 class MainViewController: UIViewController {
 
-    init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        // Custom initialization
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
