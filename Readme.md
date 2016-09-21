@@ -1,6 +1,8 @@
 HNTask
 ======
 
+:warning: **THIS PROJECT IS NO LONGER MAINTAINED.**
+
 Utility for asynchronous operations, written in Swift.
 
 With `HNTask`, you can organize asynchronous operations in the pattern like a JavaScript Promise. The core algorithm is inspired by `BFTask` in [Bolts-iOS](https://github.com/BoltsFramework/Bolts-iOS) and the core syntax came from JavaScript Promise.
